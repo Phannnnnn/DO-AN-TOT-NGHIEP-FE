@@ -7,8 +7,7 @@ import RoomDetailModal from "./RoomDetailModal";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import RoomCard from "@/pages/RoomManagement/RoomCard";
 import { roomService } from "@/services";
-import { roomTypeService } from "@/services/rooms/roomTypeService";
-import ManagerHeader from "./RoomHeader";
+import RoomMangagementHeader from "./RoomMangagementHeader";
 
 const STATUS_MAP = {
   available: {
@@ -170,13 +169,15 @@ const RoomManagementPage = () => {
       className="p-8 max-w-[1600px] mx-auto min-h-screen"
       style={{ background: "#0f0a19" }}
     >
-      <ManagerHeader
+      <RoomMangagementHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         activeFilter={activeFilter}
         setActiveFilter={setActiveFilter}
         fillterMap={STATUS_MAP}
         onAddItem={openAdd}
+        addButtonLabel={"Thêm mới phòng"}
+        searchPlaceholder={"Tìm kiếm phòng..."}
       />
 
       {loading ? (
@@ -226,7 +227,6 @@ const RoomManagementPage = () => {
                       key={room.roomId}
                       room={room}
                       statusMap={STATUS_MAP}
-   
                       onView={openDetail}
                       onEdit={openEdit}
                       onDelete={handleDeleteRequest}

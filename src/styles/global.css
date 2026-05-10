@@ -15,3 +15,11 @@
   --brown: #964b00;
   --slate: #516572;
 }
+
+* {
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}

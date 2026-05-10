@@ -22,7 +22,11 @@ apiClient.interceptors.request.use(
 
 apiClient.interceptors.response.use(
   (response) => {
-    return response?.data || response;
+    const data = response?.data || response;
+    if (data?.success === false) {
+      return Promise.reject(data);
+    }
+    return data;
   },
   async (error) => {
     const originalRequest = error.config;

@@ -14,6 +14,7 @@ export const API_ENDPOINTS = {
   },
 
   ROOM_BED: {
+    ROOM_BEDS: "room-bed",
     ROOM_BEDS_BY_ROOM_TYPE_ID: (id) => `room-bed/${id}`,
     ROOM_BED_BY_ID: (id) => `room-bed/${id}`,
   },

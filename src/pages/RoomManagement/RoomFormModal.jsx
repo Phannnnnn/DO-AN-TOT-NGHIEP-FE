@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { X, Save } from "lucide-react";
 import Stepper from "@/components/common/Stepper";
 import CustomSelect from "@/components/common/CustomSelect";
-import { roomTypeService } from "@/services/rooms/roomTypeService";
 
 const STATUS_OPTIONS = [
   { value: "available", label: "Trống" },
@@ -63,7 +62,7 @@ const RoomFormModal = ({
       });
     }
     setErrors({});
-  }, [isOpen, initialData]);
+  }, [isOpen, initialData, roomTypes]);
 
   if (!isOpen) return null;
 

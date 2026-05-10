@@ -12,8 +12,7 @@ import App from "../App";
 import LoginPage from "@/pages/Auth/LoginPage";
 import { PrivateRoute } from "@/guards/PrivateRoute";
 import { PublicRoute } from "@/guards/PublicRoute";
-import RoomTypePage from "@/pages/RoomType/RoomTypePage";
-import RoomTypeDetailPage from "@/pages/RoomType/RoomTypeDetailPage";
+import RoomTypeManagementPage from "@/pages/RoomType/RoomTypeManagementPage";
 
 export const router = createBrowserRouter([
   {
@@ -31,8 +30,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <DashboardPage /> },
           { path: "rooms", element: <RoomManagementPage /> },
-          { path: "room-type", element: <RoomTypePage /> },
-          { path: "room-type/:id", element: <RoomTypeDetailPage /> },
+          { path: "room-type", element: <RoomTypeManagementPage /> },
           { path: "bookings", element: <BookingPage /> },
           { path: "customers", element: <CustomersPage /> },
           { path: "invoices", element: <InvoicesPage /> },

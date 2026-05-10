@@ -111,7 +111,7 @@ const AppSidebar = () => {
                     <SidebarMenuButton
                       asChild
                       tooltip={item.label}
-                      className={`${active ? "bg-[#b026ff]/30 border border-[#b026ff]/60 shadow-[0_0_20px_rgba(176,38,255,0.2)] text-[var(--white)] hover:bg-[#b026ff]/30 active:bg-[#b026ff]/30 hover:text-[var(--white)]" : "border border-transparent text-[var(--white)]/60 active:bg-[#b026ff]/30 active:text-[var(--white)] hover:bg-[#b026ff]/10 hover:text-[var(--white)] transition-all duration-300"} 
+                      className={`${active ? "bg-[#b026ff]/30 border border-[#b026ff]/60 shadow-[0_0_20px_rgba(176,38,255,0.2)] text-[var(--white)] hover:bg-[#b026ff]/30 active:bg-[#b026ff]/30 hover:text-[var(--white)] active:text-[var(--white)]" : "border border-transparent text-[var(--white)]/60 active:bg-[#b026ff]/30 active:text-[var(--white)] hover:bg-[#b026ff]/10 hover:text-[var(--white)] transition-all duration-300"} 
                         py-5 group-data-[state=collapsed]:hover:text-[var(--white)] group-data-[state=collapsed]:active:bg-[#b026ff]/30 group-data-[state=collapsed]:mx-auto`}
                     >
                       <Link to={item.path}>

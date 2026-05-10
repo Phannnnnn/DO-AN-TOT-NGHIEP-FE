@@ -1,14 +1,15 @@
 import AddButton from "@/components/common/AddButton";
 import SearchPrimary from "@/components/common/SearchPrimary";
-import { Plus } from "lucide-react";
 
-const ManagerHeader = ({
+const RoomMangagementHeader = ({
   searchQuery,
   setSearchQuery,
   activeFilter,
   setActiveFilter,
   fillterMap = [],
   onAddItem,
+  addButtonLabel,
+  searchPlaceholder,
 }) => {
   return (
     <div className="flex flex-wrap justify-between items-center gap-4 sticky top-0 z-30 bg-[#0d0d1a]/85 backdrop-blur-[12px] px-5 py-4 rounded-[0.875rem] border border-violet-500/12 shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
@@ -17,7 +18,7 @@ const ManagerHeader = ({
         <SearchPrimary
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          placeholder={"Tìm số phòng..."}
+          placeholder={searchPlaceholder}
         />
 
         {/* Filter pills */}
@@ -65,10 +66,10 @@ const ManagerHeader = ({
 
       {/* Add button */}
       {onAddItem && (
-        <AddButton onAddItem={onAddItem} addLabel="Thêm phòng mới" />
+        <AddButton onAddItem={onAddItem} addLabel={addButtonLabel} />
       )}
     </div>
   );
 };
 
-export default ManagerHeader;
+export default RoomMangagementHeader;
