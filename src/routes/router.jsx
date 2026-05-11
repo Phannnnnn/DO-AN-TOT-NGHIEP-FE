@@ -13,6 +13,7 @@ import LoginPage from "@/pages/Auth/LoginPage";
 import { PrivateRoute } from "@/guards/PrivateRoute";
 import { PublicRoute } from "@/guards/PublicRoute";
 import RoomTypeManagementPage from "@/pages/RoomType/RoomTypeManagementPage";
+import RoomConfigPage from "@/pages/RoomConFig/RoomConfigPage";
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +32,7 @@ export const router = createBrowserRouter([
           { index: true, element: <DashboardPage /> },
           { path: "rooms", element: <RoomManagementPage /> },
           { path: "room-type", element: <RoomTypeManagementPage /> },
+          { path: "room-config", element: <RoomConfigPage /> },
           { path: "bookings", element: <BookingPage /> },
           { path: "customers", element: <CustomersPage /> },
           { path: "invoices", element: <InvoicesPage /> },

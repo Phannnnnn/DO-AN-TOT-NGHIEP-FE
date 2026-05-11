@@ -5,7 +5,8 @@ const LabelHeader = () => {
   const menuItems = [
     { id: 1, label: "Bảng điều khiển", path: "/" },
     { id: 2, label: "Quản lý phòng", path: "/rooms" },
-    { id: 2, label: "Loại phòng", path: "/room-type" },
+    { id: 20, label: "Loại phòng", path: "/room-type" },
+    { id: 22, label: "Tiện ích / giường", path: "/room-config" },
     { id: 3, label: "Đặt phòng", path: "/bookings" },
     { id: 4, label: "Người dùng", path: "/customers" },
     { id: 5, label: "Dịch vụ", path: "/services" },

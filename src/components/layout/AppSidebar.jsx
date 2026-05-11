@@ -11,6 +11,7 @@ import {
   ChartBar,
   Bed,
   WashingMachine,
+  SlidersHorizontal,
 } from "lucide-react";
 import {
   Sidebar,
@@ -31,16 +32,22 @@ const MENU_GROUPS = [
     label: "Tổng quan",
     items: [
       { id: 1, label: "Dashboard", icon: LayoutDashboard, path: "/" },
-      { id: 9, label: "Báo cáo", icon: ChartBar, path: "/reports" },
+      { id: 2, label: "Báo cáo", icon: ChartBar, path: "/reports" },
     ],
   },
   {
     label: "Phòng",
     items: [
-      { id: 2, label: "Quản lý phòng", icon: BedDouble, path: "/rooms" },
-      { id: 22, label: "Loại phòng", icon: Bed, path: "/room-type" },
+      { id: 3, label: "Quản lý phòng", icon: BedDouble, path: "/rooms" },
+      { id: 4, label: "Loại phòng", icon: Bed, path: "/room-type" },
       {
-        id: 8,
+        id: 5,
+        label: "Tiện ích/giường",
+        icon: SlidersHorizontal,
+        path: "/room-config",
+      },
+      {
+        id: 6,
         label: "Buồng phòng",
         icon: WashingMachine,
         path: "/housekeeping",
@@ -50,16 +57,16 @@ const MENU_GROUPS = [
   {
     label: "Vận hành",
     items: [
-      { id: 3, label: "Đặt phòng", icon: CalendarDays, path: "/bookings" },
-      { id: 5, label: "Dịch vụ", icon: ConciergeBell, path: "/services" },
-      { id: 6, label: "Hóa đơn", icon: FileText, path: "/invoices" },
+      { id: 7, label: "Đặt phòng", icon: CalendarDays, path: "/bookings" },
+      { id: 8, label: "Dịch vụ", icon: ConciergeBell, path: "/services" },
+      { id: 9, label: "Hóa đơn", icon: FileText, path: "/invoices" },
     ],
   },
   {
     label: "Nhân sự & KH",
     items: [
-      { id: 4, label: "Người dùng", icon: Users, path: "/customers" },
-      { id: 7, label: "Nhân sự", icon: UserCog, path: "/staff" },
+      { id: 10, label: "Người dùng", icon: Users, path: "/customers" },
+      { id: 11, label: "Nhân sự", icon: UserCog, path: "/staff" },
     ],
   },
 ];
