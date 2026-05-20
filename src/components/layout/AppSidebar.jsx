@@ -1,17 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   Users,
-  FileText,
   LogOut,
   LayoutDashboard,
-  BedDouble,
-  CalendarDays,
   ConciergeBell,
-  UserCog,
-  ChartBar,
   Bed,
-  WashingMachine,
-  SlidersHorizontal,
+  BarChart3,
+  Hotel,
+  Sparkles,
+  CalendarCheck2,
+  Contact2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -31,42 +29,42 @@ const MENU_GROUPS = [
   {
     label: "Tổng quan",
     items: [
-      { id: 1, label: "Dashboard", icon: LayoutDashboard, path: "/" },
-      { id: 2, label: "Báo cáo", icon: ChartBar, path: "/reports" },
+      { id: 1, label: "Tổng quan", icon: LayoutDashboard, path: "/" },
+      { id: 2, label: "Báo cáo", icon: BarChart3, path: "/reports" },
     ],
   },
   {
     label: "Phòng",
     items: [
-      { id: 3, label: "Quản lý phòng", icon: BedDouble, path: "/rooms" },
-      { id: 4, label: "Loại phòng", icon: Bed, path: "/room-type" },
+      { id: 3, label: "Quản lý phòng", icon: Bed, path: "/rooms" },
+      { id: 4, label: "Loại phòng", icon: Hotel, path: "/room-type" },
       {
         id: 5,
         label: "Tiện ích/giường",
-        icon: SlidersHorizontal,
+        icon: ConciergeBell,
         path: "/room-config",
       },
-      {
-        id: 6,
-        label: "Buồng phòng",
-        icon: WashingMachine,
-        path: "/housekeeping",
-      },
+      // {
+      //   id: 6,
+      //   label: "Buồng phòng",
+      //   icon: WashingMachine,
+      //   path: "/housekeeping",
+      // },
     ],
   },
   {
     label: "Vận hành",
     items: [
-      { id: 7, label: "Đặt phòng", icon: CalendarDays, path: "/bookings" },
-      { id: 8, label: "Dịch vụ", icon: ConciergeBell, path: "/services" },
-      { id: 9, label: "Hóa đơn", icon: FileText, path: "/invoices" },
+      { id: 7, label: "Đặt phòng", icon: CalendarCheck2, path: "/bookings" },
+      { id: 8, label: "Dịch vụ", icon: Sparkles, path: "/services" },
+      // { id: 9, label: "Hóa đơn", icon: FileText, path: "/invoices" },
     ],
   },
   {
     label: "Nhân sự & KH",
     items: [
       { id: 10, label: "Người dùng", icon: Users, path: "/customers" },
-      { id: 11, label: "Nhân sự", icon: UserCog, path: "/staff" },
+      { id: 11, label: "Nhân sự", icon: Contact2, path: "/staff" },
     ],
   },
 ];
@@ -148,13 +146,7 @@ const AppSidebar = () => {
               tooltip={"Đăng xuất"}
               onClick={logout}
               className="
-                relative flex items-center h-10 rounded-xl transition-all duration-150
-                mx-2 px-3 gap-3 w-[calc(100%-1rem)]
-                border border-transparent
-                text-gray-400 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20
-                group-data-[state=collapsed]:mx-auto group-data-[state=collapsed]:w-10
-                group-data-[state=collapsed]:px-0 group-data-[state=collapsed]:justify-center
-                group-data-[state=collapsed]:gap-0
+                relative flex items-center h-10 rounded-xl transition-all duration-150 gap-3 border border-transparent text-gray-400 hover:text-[var(--red)] active:text-[var(--white)] hover:bg-[var(--red)]/10 active:bg-[var(--red)]/60 hover:border-red-500/20 cursor-pointer
               "
             >
               <LogOut size={18} strokeWidth={1.8} className="shrink-0" />

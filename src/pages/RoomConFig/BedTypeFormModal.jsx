@@ -1,36 +1,43 @@
 import { useState, useEffect } from "react";
-import { X, Save } from "lucide-react";
+import { Save } from "lucide-react";
+import CancelButton from "@/components/common/CancelButton";
+import Stepper from "@/components/common/Stepper";
 
 const BedTypeFormModal = ({ isOpen, onClose, onSubmit, initialData }) => {
   const [roomBedType, setRoomBedType] = useState("");
-  const [error, setError] = useState("");
+  const [capacity, setCapacity] = useState(1);
+  const [errors, setErrors] = useState({});
 
   const isEdit = !!initialData?.roomBedId;
 
   useEffect(() => {
     if (!isOpen) return;
     setRoomBedType(initialData?.roomBedType ?? "");
-    setError("");
+    setCapacity(initialData?.capacity ?? 1);
+    setErrors({});
   }, [isOpen, initialData]);
 
   if (!isOpen) return null;
 
   const handleSubmit = () => {
-    if (!roomBedType.trim()) {
-      setError("Tên loại giường không được để trống");
+    const e = {};
+    if (!roomBedType.trim())
+      e.roomBedType = "Tên loại giường không được để trống";
+    if (roomBedType.length > 50) e.roomBedType = "Tối đa 50 ký tự";
+    if (!capacity || capacity < 1) e.capacity = "Sức chứa tối thiểu là 1";
+    if (Object.keys(e).length) {
+      setErrors(e);
       return;
     }
-    if (roomBedType.length > 50) {
-      setError("Tối đa 50 ký tự");
-      return;
-    }
-    onSubmit({ roomBedType: roomBedType.trim() });
+    onSubmit({ roomBedType: roomBedType.trim(), capacity: Number(capacity) });
   };
 
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[rgba(5,5,15,0.85)] backdrop-blur-[10px]"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div className="w-full max-w-sm rounded-2xl border border-[rgba(176,38,255,0.2)] shadow-2xl bg-gradient-to-br from-[#0f0a19] to-[#1a1425]">
         <div className="p-7 flex flex-col gap-5">
@@ -41,18 +48,15 @@ const BedTypeFormModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                 {isEdit ? "Cập nhật loại giường" : "Thêm loại giường"}
               </h2>
               <p className="text-xs text-gray-600 mt-1">
-                {isEdit ? `Chỉnh sửa "${initialData.roomBedType}"` : "Nhập tên loại giường mới"}
+                {isEdit
+                  ? `Chỉnh sửa "${initialData.roomBedType}"`
+                  : "Nhập thông tin loại giường mới"}
               </p>
             </div>
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-lg border border-white/[0.08] bg-white/[0.04] text-gray-600 hover:bg-white/10 hover:text-gray-300 transition-colors cursor-pointer shrink-0"
-            >
-              <X size={15} />
-            </button>
+            <CancelButton onClose={onClose} />
           </div>
 
-          {/* Input */}
+          {/* Tên loại giường */}
           <div className="flex flex-col gap-1.5">
             <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
               Tên loại giường <span className="text-red-500">*</span>
@@ -60,18 +64,39 @@ const BedTypeFormModal = ({ isOpen, onClose, onSubmit, initialData }) => {
             <input
               type="text"
               value={roomBedType}
-              onChange={(e) => { setRoomBedType(e.target.value); setError(""); }}
-              placeholder="VD: single, king, queen..."
+              onChange={(e) => {
+                setRoomBedType(e.target.value);
+                setErrors((p) => ({ ...p, roomBedType: undefined }));
+              }}
+              placeholder="VD: Giường đơn, Giường đôi, Giường King..."
               maxLength={50}
               autoFocus
               className={`h-11 px-3.5 rounded-lg bg-white/[0.04] text-[13px] font-semibold text-gray-200 outline-none transition-all border ${
-                error
-                  ? "border-red-500/50 focus:border-red-500"
+                errors.roomBedType
+                  ? "border-red-500/50"
                   : "border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)]"
               }`}
             />
-            {error && <span className="text-[10px] text-red-400">{error}</span>}
+            {errors.roomBedType && (
+              <span className="text-[10px] text-red-400">
+                {errors.roomBedType}
+              </span>
+            )}
           </div>
+
+          {/* Sức chứa */}
+          <Stepper
+            label="Sức chứa (người/giường) *"
+            value={capacity}
+            onChange={(val) => {
+              setCapacity(val);
+              setErrors((p) => ({ ...p, capacity: undefined }));
+            }}
+            min={1}
+          />
+          {errors.capacity && (
+            <span className="text-[10px] text-red-400">{errors.capacity}</span>
+          )}
 
           {/* Actions */}
           <div className="flex gap-3">

@@ -12,6 +12,16 @@ const PLAN_TYPE_COLOR = {
   HOLIDAY: "bg-amber-500/10 border-amber-500/30 text-amber-400",
 };
 
+// Format số nguyên sang chuỗi có dấu chấm VND
+const formatPrice = (value) => {
+  if (!value && value !== 0) return "";
+  const num = parseInt(String(value).replace(/\D/g, ""), 10);
+  return isNaN(num) ? "" : num.toLocaleString("vi-VN");
+};
+
+// Chỉ giữ lại chữ số, bỏ mọi thứ khác
+const unformatPrice = (val) => val.replace(/\D/g, "");
+
 const StepPricePlans = ({
   plans,
   errors,
@@ -20,6 +30,11 @@ const StepPricePlans = ({
   onUpdate,
   isEdit,
 }) => {
+  const handlePriceChange = (i, e) => {
+    const raw = unformatPrice(e.target.value);
+    onUpdate(i, "basePrice", raw);
+  };
+
   return (
     <div className="flex flex-col gap-3">
       {plans.length === 0 && (
@@ -102,7 +117,7 @@ const StepPricePlans = ({
             </div>
           </div>
 
-          {/* Giá */}
+          {/* Giá – luôn hiển thị format có dấu chấm */}
           <div className="flex flex-col gap-1.5">
             <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
               Giá (VNĐ) <span className="text-red-500">*</span>
@@ -110,11 +125,9 @@ const StepPricePlans = ({
             <input
               type="text"
               inputMode="numeric"
-              value={plan.basePrice}
-              onChange={(e) =>
-                onUpdate(i, "basePrice", e.target.value.replace(/[^0-9]/g, ""))
-              }
-              placeholder="VD: 1000000"
+              value={formatPrice(plan.basePrice)}
+              onChange={(e) => handlePriceChange(i, e)}
+              placeholder="VD: 1.000.000"
               className={`h-10 px-3 rounded-lg bg-white/[0.04] text-[12px] font-semibold text-gray-200 outline-none transition-all border ${
                 errors[`plan_price_${i}`]
                   ? "border-red-500/50"

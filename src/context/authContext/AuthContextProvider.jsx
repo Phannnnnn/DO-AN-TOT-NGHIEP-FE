@@ -79,6 +79,7 @@ export const AuthContextProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     dispatch({ type: "LOGOUT" });
   };
 

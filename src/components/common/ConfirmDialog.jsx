@@ -1,4 +1,5 @@
-import { Trash2, X } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import CancelButton from "./CancelButton";
 
 const ConfirmDialog = ({
   isOpen,
@@ -24,13 +25,9 @@ const ConfirmDialog = ({
         {/* Glow blob */}
         <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full pointer-events-none bg-red-500 blur-[60px] opacity-10" />
 
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-1.5 rounded-lg border border-white/[0.08] bg-white/[0.04] text-gray-600 hover:bg-white/10 hover:text-gray-300 transition-colors cursor-pointer"
-        >
-          <X size={14} />
-        </button>
+        <div className="absolute top-4 right-4 z-10">
+          <CancelButton onClose={onClose} />
+        </div>
 
         <div className="relative p-8 flex flex-col items-center gap-5">
           {/* Icon */}

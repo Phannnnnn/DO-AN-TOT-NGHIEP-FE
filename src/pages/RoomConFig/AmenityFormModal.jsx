@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { X, Save } from "lucide-react";
+import { Save } from "lucide-react";
+import CancelButton from "@/components/common/CancelButton";
 
 const CATEGORY_OPTIONS = [
   { value: "bathroom", label: "Phòng tắm" },
@@ -76,12 +77,7 @@ const AmenityFormModal = ({ isOpen, onClose, onSubmit, initialData }) => {
                   : "Nhập thông tin tiện ích mới"}
               </p>
             </div>
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-lg border border-white/[0.08] bg-white/[0.04] text-gray-600 hover:bg-white/10 hover:text-gray-300 transition-colors cursor-pointer shrink-0"
-            >
-              <X size={15} />
-            </button>
+            <CancelButton onClose={onClose} />
           </div>
 
           {/* Tên */}

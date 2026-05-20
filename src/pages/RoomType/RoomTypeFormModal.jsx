@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { X, Save, ChevronRight, ChevronLeft } from "lucide-react";
+import { Save, ChevronRight, ChevronLeft } from "lucide-react";
 
 import StepBasicInfo from "./steps/StepBasicInfo";
 import StepBeds from "./steps/StepBeds";
 import StepAmenities from "./steps/StepAmenities";
 import StepImages from "./steps/StepImages";
 import StepPricePlans from "./steps/StepPricePlans";
+import CancelButton from "@/components/common/CancelButton";
 
 const STEPS = [
   { label: "Thông tin" },
@@ -273,12 +274,7 @@ const RoomTypeFormModal = ({
                 : "Điền thông tin để tạo loại phòng mới"}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg border cursor-pointer border-white/[0.08] bg-white/[0.04] text-gray-600 hover:bg-white/10 hover:text-gray-300 transition-colors shrink-0"
-          >
-            <X size={15} />
-          </button>
+          <CancelButton onClose={onClose} />
         </div>
 
         {/* Step indicator */}

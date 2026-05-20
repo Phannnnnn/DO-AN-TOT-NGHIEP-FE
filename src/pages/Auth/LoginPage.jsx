@@ -78,10 +78,10 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex ">
       {/* ── LEFT PANEL ──────────────────────────────────────────────────── */}
       <div
-        className="hidden lg:flex lg:w-[58%] relative overflow-hidden"
+        className="hidden h-screen lg:flex lg:w-[58%] relative overflow-hidden"
         style={{
           background:
             "linear-gradient(135deg, #1a56db 0%, #1e40af 40%, #1d3461 100%)",

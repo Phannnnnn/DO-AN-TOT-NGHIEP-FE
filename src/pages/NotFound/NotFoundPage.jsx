@@ -1,4 +1,3 @@
-import React from "react";
 import { Home, ArrowLeft, SearchX } from "lucide-react";
 
 const NotFoundPage = () => {

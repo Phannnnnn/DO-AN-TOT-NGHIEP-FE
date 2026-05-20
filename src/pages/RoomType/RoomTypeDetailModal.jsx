@@ -1,5 +1,6 @@
+import CancelButton from "@/components/common/CancelButton";
 import { formatVND } from "@/types/utils/fomatters/vndFomatter";
-import { X, Edit3, Users, Bed, Sparkles, DollarSign } from "lucide-react";
+import { Edit3, Users, Bed, Sparkles, DollarSign } from "lucide-react";
 
 const BED_LABEL = {
   single: "Giường Đơn",
@@ -55,13 +56,9 @@ const RoomTypeDetailModal = ({ roomType, isOpen, onClose, onEdit }) => {
         {/* Top glow */}
         <div className="absolute -top-14 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full pointer-events-none bg-[#b026ff] blur-[60px] opacity-20" />
 
-        {/* Close button — fixed, tidak scroll */}
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 z-10 p-1.5 rounded-lg border border-white/[0.08] bg-white/[0.04] text-gray-600 hover:bg-white/10 hover:text-gray-300 transition-colors cursor-pointer"
-        >
-          <X size={15} />
-        </button>
+        <div className="absolute top-5 right-5 z-10">
+          <CancelButton onClose={onClose} />
+        </div>
 
         {/* Scrollable content */}
         <div className="relative p-8 flex flex-col gap-5 overflow-y-auto max-h-[90vh]">

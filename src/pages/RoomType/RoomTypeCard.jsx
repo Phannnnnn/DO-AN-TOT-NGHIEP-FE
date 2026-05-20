@@ -3,14 +3,6 @@ import RemoveButton from "@/components/common/RemoveButton";
 import { formatVND } from "@/types/utils/fomatters/vndFomatter";
 import { Users, Bed, Eye } from "lucide-react";
 
-const BED_LABEL = {
-  single: "Đơn",
-  double: "Đôi",
-  king: "King",
-  queen: "Queen",
-  bunk: "Tầng",
-};
-
 const RoomTypeCard = ({ roomType, onView, onEdit, onDelete }) => {
   const beds = roomType.roomBeds || [];
   const amenities = roomType.roomTypeAmenities || [];

@@ -33,4 +33,33 @@ export const API_ENDPOINTS = {
     PRICEPLANS_BY_ROOM_TYPE_ID: (id) => `price-plan/room-type/${id}`,
     PRICEPLAN_BY_ID: (id) => `price-plan/${id}`,
   },
+
+  BOOKING: {
+    BOOKINGS: "booking",
+    BOOKINGS_BY_ID: (id) => `booking/${id}`,
+    BOOKING_AVAILBLE_ROOMS: "booking/available-rooms",
+    BOOKING_STATUS: (id) => `booking/${id}/status`,
+    BOOKING_CHECK_IN: (id) => `booking/${id}/check-in`,
+    BOOKING_CHECK_OUT: (id) => `booking/${id}/check-out`,
+  },
+
+  SERVICE: {
+    SERVICES: "service",
+    SERVICE_BY_ID: (id) => `service/${id}`,
+  },
+
+  SERVICE_TYPE: {
+    SERVICE_TYPES: "service-type",
+    SERVICE_TYPE_BY_ID: (id) => `service-type/${id}`,
+  },
+
+  CUSTOMER: {
+    CUSTOMERS: "customer",
+    CUSTOMER_BY_ID: (id) => `customer/${id}`,
+  },
+
+  PAYMENT: {
+    CREATE_PAYMENT: (id) => `payment/create-payment/${id}`,
+    PAY_CASH: (id) => `payment/pay-cash/${id}`,
+  },
 };

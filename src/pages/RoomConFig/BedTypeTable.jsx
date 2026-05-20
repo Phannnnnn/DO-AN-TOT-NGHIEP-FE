@@ -17,12 +17,15 @@ const BedTypeTable = ({ bedTypes, onEdit, onDelete }) => {
   return (
     <div className="rounded-xl border border-white/[0.06] overflow-hidden">
       {/* Table header */}
-      <div className="grid grid-cols-[2rem_1fr_10rem] gap-4 px-5 py-3 border-b border-white/[0.06] bg-white/[0.02]">
+      <div className="grid grid-cols-[2rem_1fr_8rem_10rem] gap-4 px-5 py-3 border-b border-white/[0.06] bg-white/[0.02]">
         <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
           #
         </p>
         <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
           Tên loại giường
+        </p>
+        <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
+          Sức chứa
         </p>
         <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em] text-right">
           Thao tác
@@ -33,7 +36,7 @@ const BedTypeTable = ({ bedTypes, onEdit, onDelete }) => {
       {bedTypes.map((bed, i) => (
         <div
           key={bed.roomBedId}
-          className={`grid grid-cols-[2rem_1fr_10rem] gap-4 px-5 py-3.5 items-center transition-colors hover:bg-white/[0.02] ${
+          className={`grid grid-cols-[2rem_1fr_8rem_10rem] gap-4 px-5 py-3.5 items-center transition-colors hover:bg-white/[0.02] ${
             i !== bedTypes.length - 1 ? "border-b border-white/[0.04]" : ""
           }`}
         >
@@ -46,6 +49,12 @@ const BedTypeTable = ({ bedTypes, onEdit, onDelete }) => {
             <p className="text-[13px] font-semibold text-gray-200">
               {bed.roomBedType}
             </p>
+          </div>
+
+          <div>
+            <span className="px-2 py-0.5 rounded-md text-[10px] font-black border bg-[rgba(176,38,255,0.08)] border-[rgba(176,38,255,0.2)] text-[#dda6ff]">
+              {bed.capacity ?? 1} người
+            </span>
           </div>
 
           <div className="flex items-center justify-end gap-1.5">

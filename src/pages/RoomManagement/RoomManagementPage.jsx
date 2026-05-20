@@ -6,7 +6,7 @@ import RoomFormModal from "./RoomFormModal";
 import RoomDetailModal from "./RoomDetailModal";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import RoomCard from "@/pages/RoomManagement/RoomCard";
-import { roomService } from "@/services";
+import { roomService, roomTypeService } from "@/services";
 import RoomMangagementHeader from "./RoomMangagementHeader";
 
 const STATUS_MAP = {
@@ -44,7 +44,6 @@ const STATUS_MAP = {
   },
 };
 
-// ─────────────────────────────────────────────────────────────
 const RoomManagementPage = () => {
   const [rooms, setRooms] = useState([]);
   const [roomTypes, setRoomTypes] = useState([]);
@@ -52,12 +51,10 @@ const RoomManagementPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
 
-  // Modal states
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  // Confirm delete dialog
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [roomToDelete, setRoomToDelete] = useState(null);
 
@@ -90,60 +87,60 @@ const RoomManagementPage = () => {
       let res;
       if (selectedRoom?.roomId) {
         res = await roomService.update(selectedRoom.roomId, data);
-        if (res?.success) {
+        if (res.success) {
           toast.success("Cập nhật thành công.");
           setRooms((prev) =>
             prev.map((r) => (r.roomId === res.data.roomId ? res.data : r)),
           );
+        } else {
+          toast.error(extractError(res));
+          return;
         }
       } else {
         res = await roomService.create(data);
-        if (res?.success) {
+        if (res.success) {
           toast.success("Tạo phòng thành công.");
           setRooms((prev) => [...prev, res.data]);
+        } else {
+          toast.error(extractError(res));
+          return;
         }
       }
       setIsFormOpen(false);
       setSelectedRoom(null);
     } catch (error) {
-      toast.error(error.message);
+      toast.error(extractError(error));
     }
   };
 
-  // RoomCard gọi onDelete(room) — mở dialog
   const handleDeleteRequest = (room) => {
     setRoomToDelete(room);
     setConfirmOpen(true);
   };
 
-  // Dialog xác nhận → thực sự xóa
   const handleDeleteConfirm = async () => {
     if (!roomToDelete) return;
     try {
       await roomService.remove(roomToDelete.roomId);
-      toast.success(`Xóa thành công.`);
-      setRooms((prev) =>
-        prev.filter((room) => room.roomId !== roomToDelete.roomId),
-      );
+      toast.success("Xóa thành công.");
+      setRooms((prev) => prev.filter((r) => r.roomId !== roomToDelete.roomId));
     } catch (e) {
-      toast.error(e.message);
+      toast.error(extractError(e));
     } finally {
       setRoomToDelete(null);
     }
   };
 
-  // ── Navigation helpers ───────────────────────────────────
+  // ── Navigation ───────────────────────────────────────────
   const openAdd = () => {
     setSelectedRoom(null);
     setIsFormOpen(true);
   };
-
   const openEdit = (room) => {
     setSelectedRoom(room);
     setIsDetailOpen(false);
     setIsFormOpen(true);
   };
-
   const openDetail = (room) => {
     setSelectedRoom(room);
     setIsDetailOpen(true);
@@ -151,7 +148,7 @@ const RoomManagementPage = () => {
 
   // ── Filter + group ────────────────────────────────────────
   const groupedRooms = useMemo(() => {
-    const filtered = (rooms || []).filter(
+    const filtered = rooms.filter(
       (r) =>
         r.roomNumber?.toString().includes(searchQuery) &&
         (activeFilter === "all" || r.status === activeFilter),
@@ -163,12 +160,14 @@ const RoomManagementPage = () => {
     }, {});
   }, [rooms, searchQuery, activeFilter]);
 
+  const extractError = (err) =>
+    Array.isArray(err?.message)
+      ? err.message.map((e) => e.error).join(", ")
+      : (err?.message ?? "Có lỗi xảy ra");
+
   // ── Render ────────────────────────────────────────────────
   return (
-    <div
-      className="p-8 max-w-[1600px] mx-auto min-h-screen"
-      style={{ background: "#0f0a19" }}
-    >
+    <div className="p-8 max-w-[1600px] mx-auto min-h-screen bg-[#0f0a19]">
       <RoomMangagementHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -176,17 +175,13 @@ const RoomManagementPage = () => {
         setActiveFilter={setActiveFilter}
         fillterMap={STATUS_MAP}
         onAddItem={openAdd}
-        addButtonLabel={"Thêm mới phòng"}
-        searchPlaceholder={"Tìm kiếm phòng..."}
+        addButtonLabel="Thêm phòng mới"
+        searchPlaceholder="Tìm số phòng..."
       />
 
       {loading ? (
         <div className="flex justify-center py-20">
-          <Loader2
-            className="animate-spin"
-            size={32}
-            style={{ color: "#b026ff" }}
-          />
+          <Loader2 className="animate-spin text-[#b026ff]" size={32} />
         </div>
       ) : Object.keys(groupedRooms).length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24">
@@ -200,16 +195,12 @@ const RoomManagementPage = () => {
             .sort((a, b) => Number(a) - Number(b))
             .map((floor) => (
               <div key={floor}>
-                {/* Floor divider */}
                 <div className="flex items-center gap-3 mb-4">
-                  <MapPin size={13} style={{ color: "#b026ff" }} />
+                  <MapPin size={13} className="text-[#b026ff]" />
                   <span className="text-[10px] font-black text-gray-600 uppercase tracking-[0.15em]">
                     Tầng {floor}
                   </span>
-                  <div
-                    className="flex-1 h-px"
-                    style={{ background: "rgba(176,38,255,0.1)" }}
-                  />
+                  <div className="flex-1 h-px bg-[rgba(176,38,255,0.1)]" />
                   <span className="text-[10px] font-bold text-gray-700">
                     {groupedRooms[floor].length} phòng
                   </span>
@@ -238,7 +229,6 @@ const RoomManagementPage = () => {
         </div>
       )}
 
-      {/* Modals */}
       <RoomFormModal
         isOpen={isFormOpen}
         onClose={() => {
