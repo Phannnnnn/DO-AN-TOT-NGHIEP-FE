@@ -1,6 +1,50 @@
-import { Plus, Trash2, ImageOff, Star } from "lucide-react";
+import { useState } from "react";
+import { Plus, Trash2, ImageOff, Star, Upload, Loader2 } from "lucide-react";
+import { cloudinaryService } from "@/services/cloudinary/cloudinaryService";
+import { toast } from "react-toastify";
+
+const uploadToCloudinary = async (file) => {
+  try {
+    const signRes = await cloudinaryService.generateSignature();
+    if (signRes.success) {
+      console.log(signRes);
+      const { cloudName, timestamp, signature, apiKey, folder } = signRes.data;
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("timestamp", timestamp);
+      formData.append("signature", signature);
+      formData.append("api_key", apiKey);
+      formData.append("folder", folder);
+
+      const uploadRes = await cloudinaryService.upload(cloudName, formData);
+      const data = await uploadRes.json();
+      console.log(data);
+      if (data.secure_url) {
+        return data.secure_url;
+      }
+    }
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
 
 const StepImages = ({ images, onAdd, onRemove, onUpdate }) => {
+  const [uploading, setUploading] = useState({}); // { index: true/false }
+
+  const handleFileChange = async (i, file) => {
+    if (!file) return;
+    setUploading((p) => ({ ...p, [i]: true }));
+    try {
+      const url = await uploadToCloudinary(file);
+      onUpdate(i, "url", url);
+    } catch (err) {
+      alert("Upload thất bại: " + err.message);
+    } finally {
+      setUploading((p) => ({ ...p, [i]: false }));
+    }
+  };
+
   return (
     <div className="flex flex-col gap-3">
       {images.length === 0 && (
@@ -20,7 +64,9 @@ const StepImages = ({ images, onAdd, onRemove, onUpdate }) => {
           <div className="flex items-center gap-2">
             {/* Preview */}
             <div className="w-14 h-14 rounded-lg shrink-0 border border-white/[0.08] bg-white/[0.04] overflow-hidden flex items-center justify-center">
-              {img.url ? (
+              {uploading[i] ? (
+                <Loader2 size={16} className="text-[#b026ff] animate-spin" />
+              ) : img.url ? (
                 <img
                   src={img.url}
                   alt=""
@@ -34,14 +80,33 @@ const StepImages = ({ images, onAdd, onRemove, onUpdate }) => {
               )}
             </div>
 
-            {/* URL input */}
-            <input
-              type="text"
-              value={img.url}
-              onChange={(e) => onUpdate(i, "url", e.target.value)}
-              placeholder="https://..."
-              className="flex-1 h-10 px-3 rounded-lg bg-white/[0.04] text-[12px] font-semibold text-gray-200 outline-none transition-all border border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)]"
-            />
+            {/* Upload button + URL input */}
+            <div className="flex-1 flex flex-col gap-1.5">
+              <label className="flex items-center gap-1.5 h-10 px-3 rounded-lg bg-white/[0.04] border border-[rgba(176,38,255,0.15)] hover:border-[rgba(176,38,255,0.4)] cursor-pointer transition-all">
+                <Upload size={12} className="text-[#b026ff] shrink-0" />
+                <span className="text-[11px] text-gray-500 truncate">
+                  {uploading[i]
+                    ? "Đang upload..."
+                    : img.url
+                      ? "Đổi ảnh"
+                      : "Chọn ảnh từ máy"}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={uploading[i]}
+                  onChange={(e) => handleFileChange(i, e.target.files?.[0])}
+                />
+              </label>
+              <input
+                type="text"
+                value={img.url}
+                onChange={(e) => onUpdate(i, "url", e.target.value)}
+                placeholder="Hoặc nhập URL trực tiếp..."
+                className="h-8 px-3 rounded-lg bg-white/[0.04] text-[11px] font-semibold text-gray-200 outline-none border border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)]"
+              />
+            </div>
 
             <button
               onClick={() => onRemove(i)}
@@ -55,18 +120,10 @@ const StepImages = ({ images, onAdd, onRemove, onUpdate }) => {
           <div className="flex items-center gap-2 ml-16">
             <button
               onClick={() => onUpdate(i, "isCover", !img.isCover)}
-              className={`flex items-center gap-1.5 text-[10px] font-bold cursor-pointer transition-colors ${
-                img.isCover
-                  ? "text-[#dda6ff]"
-                  : "text-gray-600 hover:text-gray-400"
-              }`}
+              className={`flex items-center gap-1.5 text-[10px] font-bold cursor-pointer transition-colors ${img.isCover ? "text-[#dda6ff]" : "text-gray-600 hover:text-gray-400"}`}
             >
               <div
-                className={`w-3.5 h-3.5 rounded-full border transition-all ${
-                  img.isCover
-                    ? "bg-[#b026ff] border-[#b026ff]"
-                    : "bg-transparent border-gray-600"
-                }`}
+                className={`w-3.5 h-3.5 rounded-full border transition-all ${img.isCover ? "bg-[#b026ff] border-[#b026ff]" : "bg-transparent border-gray-600"}`}
               />
               <Star size={10} className={img.isCover ? "fill-[#dda6ff]" : ""} />
               Ảnh bìa
@@ -81,10 +138,6 @@ const StepImages = ({ images, onAdd, onRemove, onUpdate }) => {
       >
         <Plus size={13} /> Thêm ảnh
       </button>
-
-      <p className="text-[9px] text-gray-700 text-center">
-        Upload Cloudinary sẽ được hỗ trợ sau. Hiện tại nhập URL trực tiếp.
-      </p>
     </div>
   );
 };

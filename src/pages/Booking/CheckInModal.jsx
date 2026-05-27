@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { UserCheck, Plus, Trash2, Save, Users } from "lucide-react";
 import CancelButton from "@/components/common/CancelButton";
+import AddButton from "@/components/common/AddButton";
 
 const DEFAULT_GUEST = {
   fullName: "",
@@ -69,7 +70,7 @@ const CheckInModal = ({ isOpen, onClose, onConfirm, booking }) => {
             </div>
             <div>
               <h3 className="text-[15px] font-black text-white">
-                Check-in #{booking.bookingId}
+                Nhận phòng #{booking.bookingId}
               </h3>
               <p className="text-[10px] text-gray-600">
                 Nhập thông tin khách lưu trú
@@ -87,14 +88,7 @@ const CheckInModal = ({ isOpen, onClose, onConfirm, booking }) => {
                 Danh sách khách ({guests.length})
               </span>
             </div>
-            <button
-              onClick={addGuest}
-              className="flex items-center gap-1.5 text-[10px] font-black text-[#b026ff] hover:text-[#dda6ff] transition-colors cursor-pointer"
-            >
-              <Plus size={12} /> Thêm khách
-            </button>
           </div>
-
           {guests.map((guest, i) => (
             <div
               key={i}
@@ -185,6 +179,14 @@ const CheckInModal = ({ isOpen, onClose, onConfirm, booking }) => {
               </div>
             </div>
           ))}
+          <div className="flex justify-end px-2">
+            <button
+              onClick={addGuest}
+              className="flex items-center gap-1.5 text-[10px] font-black text-[#b026ff] hover:text-[#dda6ff] transition-colors cursor-pointer"
+            >
+              <Plus size={12} /> Thêm
+            </button>
+          </div>{" "}
         </div>
 
         {/* Footer */}
@@ -199,7 +201,7 @@ const CheckInModal = ({ isOpen, onClose, onConfirm, booking }) => {
             onClick={handleConfirm}
             className="flex-[2] h-11 rounded-xl text-[11px] font-black uppercase tracking-wider text-white flex items-center justify-center gap-2 bg-gradient-to-br from-emerald-600 to-emerald-700 shadow-[0_4px_16px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.45)] transition-all cursor-pointer"
           >
-            <UserCheck size={14} /> Xác nhận Check-in
+            <UserCheck size={14} /> Xác nhận nhận phòng
           </button>
         </div>
       </div>

@@ -62,4 +62,18 @@ export const API_ENDPOINTS = {
     CREATE_PAYMENT: (id) => `payment/create-payment/${id}`,
     PAY_CASH: (id) => `payment/pay-cash/${id}`,
   },
+
+  DASHBOARD: {
+    SUMMARY: "dashboard/summary",
+  },
+
+  REPORT: {
+    SUMMARY: "report",
+  },
+
+  CLOUDINARY: {
+    GENERATE_SIGNATURE: "cloudinary/sign",
+    UPLOAD: (cloudName) =>
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+  },
 };

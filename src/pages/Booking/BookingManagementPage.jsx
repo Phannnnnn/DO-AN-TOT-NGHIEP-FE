@@ -59,8 +59,10 @@ const BookingManagementPage = () => {
     bookingId: null,
   });
 
+  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [cashError, setCashError] = useState("");
+
   const [bookings, setBookings] = useState([]);
-  const [rooms, setRooms] = useState([]);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -84,13 +86,6 @@ const BookingManagementPage = () => {
     }
   };
 
-  const fetchRooms = async () => {
-    try {
-      const res = await roomService.rooms();
-      if (res.success) setRooms(res.data || []);
-    } catch {}
-  };
-
   const fetchServices = async () => {
     try {
       const res = await service_roomService.services();
@@ -100,9 +95,12 @@ const BookingManagementPage = () => {
 
   useEffect(() => {
     fetchBookings();
-    fetchRooms();
     fetchServices();
   }, []);
+
+  const handleChangePaymentMethod = (method) => {
+    setPaymentMethod(method);
+  };
 
   // ── Actions ──────────────────────────────────────────────
   const handleCreate = async (data) => {
@@ -113,36 +111,61 @@ const BookingManagementPage = () => {
         toast.error(extractError(res));
         return;
       }
-
       setBookings((prev) => [res.data, ...prev]);
       setIsFormOpen(false);
+      toast.success("Đặt thành công");
+    } catch (e) {
+      toast.error(extractError(e));
+    }
+  };
 
-      const bookingId = res.data.bookingId;
+  const handleCash = async () => {
+    const bookingId = selectedBooking.bookingId;
 
+    if (!bookingId) {
+      return;
+    }
+
+    try {
       if (paymentMethod === "cash") {
-        await paymentService.payCash(bookingId);
-        setBookings((prev) =>
-          prev.map((b) =>
-            b.bookingId === bookingId
-              ? { ...b, paymentStatus: "paid", status: "confirmed" }
-              : b,
-          ),
-        );
-        toast.success("Đặt thành công.");
+        const payRes = await paymentService.payCash(bookingId);
+        if (payRes.success) {
+          setBookings((prev) =>
+            prev.map((b) => (b.bookingId === bookingId ? payRes.data : b)),
+          );
+          setSelectedBooking(payRes.data);
+          toast.success("Thanh toán thành công");
+        }
       } else if (paymentMethod === "vnpay") {
         const payRes = await paymentService.createPayment(bookingId);
         if (payRes.success) {
           setQrModal({
             open: true,
             paymentUrl: payRes.data,
-            bookingId,
+            bookingId: bookingId,
           });
         }
       }
-    } catch (e) {
-      toast.error(extractError(e));
+    } catch (error) {
+      setCashError(error.message);
     }
   };
+
+  const handlePaid = (updatedBooking) => {
+    if (!updatedBooking || !updatedBooking.bookingId) {
+      return;
+    }
+
+    setBookings((prev) =>
+      prev.map((b) =>
+        b.bookingId === updatedBooking.bookingId ? updatedBooking : b,
+      ),
+    );
+
+    setSelectedBooking(updatedBooking);
+    toast.success("Đặt thành công.");
+  };
+
   const handleUpdateStatus = async (bookingId, status) => {
     try {
       const res = await bookingService.updateStatus(bookingId, status);
@@ -286,6 +309,10 @@ const BookingManagementPage = () => {
         onUpdateStatus={handleUpdateStatus}
         onCheckIn={handleCheckIn}
         onCheckOut={handleCheckOut}
+        paymentMethod={paymentMethod}
+        onSelectMethod={handleChangePaymentMethod}
+        onCash={handleCash}
+        cashErrorMessage={cashError}
       />
 
       <BookingFormModal
@@ -293,6 +320,8 @@ const BookingManagementPage = () => {
         onClose={() => setIsFormOpen(false)}
         onSubmit={handleCreate}
         services={services}
+        paymentMethod={paymentMethod}
+        onSelectMethod={handleChangePaymentMethod}
       />
 
       <ConfirmDialog
@@ -305,7 +334,7 @@ const BookingManagementPage = () => {
           handleUpdateStatus(bookingToCancel?.bookingId, "cancelled")
         }
         title={`Hủy booking #${bookingToCancel?.bookingId ?? ""}?`}
-        description="Hành động này không thể hoàn tác. Booking sẽ bị hủy vĩnh viễn."
+        description="Hành động này không thể hoàn tác. Đơn đặt phòng sẽ bị hủy."
         confirmLabel="Hủy booking"
       />
 
@@ -316,14 +345,7 @@ const BookingManagementPage = () => {
           onClose={() =>
             setQrModal({ open: false, paymentUrl: "", bookingId: null })
           }
-          onPaid={(updatedBooking) => {
-            setBookings((prev) =>
-              prev.map((b) =>
-                b.bookingId === updatedBooking.bookingId ? updatedBooking : b,
-              ),
-            );
-            toast.success("Đặt thành công.");
-          }}
+          onPaid={handlePaid}
         />
       )}
     </div>

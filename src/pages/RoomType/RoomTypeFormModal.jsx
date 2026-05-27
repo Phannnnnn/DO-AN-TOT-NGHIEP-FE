@@ -193,13 +193,24 @@ const RoomTypeFormModal = ({
       "images",
       formData.images.filter((_, idx) => idx !== i),
     );
-  const updateImage = (i, key, val) =>
-    set(
-      "images",
-      formData.images.map((img, idx) =>
-        idx === i ? { ...img, [key]: val } : img,
-      ),
-    );
+  const updateImage = (i, key, val) => {
+    if (key === "isCover" && val === true) {
+      set(
+        "images",
+        formData.images.map((img, idx) => ({
+          ...img,
+          isCover: idx === i,
+        })),
+      );
+    } else {
+      set(
+        "images",
+        formData.images.map((img, idx) =>
+          idx === i ? { ...img, [key]: val } : img,
+        ),
+      );
+    }
+  };
 
   // ── Plan helpers ─────────────────────────────────────────
   const addPlan = () =>

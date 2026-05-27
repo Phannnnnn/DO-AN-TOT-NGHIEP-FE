@@ -1,7 +1,6 @@
 import { useState, useRef } from "react";
 import {
   Save,
-  ChevronDown,
   Plus,
   Trash2,
   Bed,
@@ -10,8 +9,6 @@ import {
   Search,
   Loader2,
   Users,
-  Shield,
-  DollarSign,
 } from "lucide-react";
 import { formatVND } from "@/types/utils/fomatters/vndFomatter";
 import CancelButton from "@/components/common/CancelButton";
@@ -20,7 +17,6 @@ import Stepper from "@/components/common/Stepper";
 import { bookingService } from "@/services";
 import RoomSelect from "./RoomSelect";
 import Section from "./Section";
-import { toast } from "react-toastify";
 import ServiceSelect from "./ServiceSelect";
 import RemoveButton from "@/components/common/RemoveButton";
 
@@ -33,8 +29,6 @@ const DEFAULT_GUEST = {
 const DEFAULT_ROOM_ITEM = { room: null, services: [] };
 
 const BookingFormModal = ({ isOpen, onClose, onSubmit, services = [] }) => {
-  const [paymentMethod, setPaymentMethod] = useState("cash");
-
   const [guest, setGuest] = useState(DEFAULT_GUEST);
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
@@ -205,7 +199,6 @@ const BookingFormModal = ({ isOpen, onClose, onSubmit, services = [] }) => {
       notes: guest.notes.trim() || undefined,
       checkInDate,
       checkOutDate,
-      paymentMethod,
       bookingDetails: roomItems.map((item) => ({
         roomId: item.room.roomId,
         services: item.services
@@ -233,11 +226,6 @@ const BookingFormModal = ({ isOpen, onClose, onSubmit, services = [] }) => {
   }, 0);
 
   const selectedRoomIds = roomItems.map((i) => i.room?.roomId).filter(Boolean);
-  const groupedServices = services.reduce((acc, s) => {
-    const type = s.serviceType?.typeName ?? "Khác";
-    (acc[type] = acc[type] || []).push(s);
-    return acc;
-  }, {});
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[rgba(5,5,15,0.85)] backdrop-blur-[10px]">
@@ -638,32 +626,6 @@ const BookingFormModal = ({ isOpen, onClose, onSubmit, services = [] }) => {
               </div>
             </Section>
           )}
-
-          <div className="p-4 rounded-xl border border-white/[0.06] bg-white/[0.01]">
-            <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em] mb-3 flex items-center gap-1.5">
-              <DollarSign size={11} /> Phương thức thanh toán
-            </p>
-            <div className="flex gap-2">
-              {[
-                { value: "cash", label: "💵 Tiền mặt" },
-                { value: "vnpay", label: "📱 Chuyển khoản VNPAY" },
-              ].map((opt) => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setPaymentMethod(opt.value)}
-                  className={`flex-1 h-10 rounded-lg text-[11px] font-black transition-all border cursor-pointer ${
-                    paymentMethod === opt.value
-                      ? "bg-[rgba(176,38,255,0.15)] border-[rgba(176,38,255,0.5)] text-[#dda6ff]"
-                      : "bg-white/[0.03] border-white/[0.07] text-gray-500 hover:border-white/[0.15] hover:text-gray-400"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {totalPreview > 0 && (
             <div className="flex items-center justify-between p-4 rounded-xl bg-[rgba(176,38,255,0.08)] border border-[rgba(176,38,255,0.18)]">
               <p className="text-[11px] font-black uppercase tracking-[0.1em] text-[#b026ff]">

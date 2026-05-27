@@ -14,9 +14,10 @@ import {
   Sparkles,
   Users,
   IdCard,
-  Shield,
 } from "lucide-react";
 import CheckInModal from "./CheckInModal";
+import PaymentMethod from "./PaymentMethod";
+import TotalBookingDetail from "./TotalBookingDetail";
 
 const BookingDetailModal = ({
   isOpen,
@@ -26,6 +27,10 @@ const BookingDetailModal = ({
   onUpdateStatus,
   onCheckIn,
   onCheckOut,
+  paymentMethod,
+  onSelectMethod,
+  onCash,
+  cashErrorMessage,
 }) => {
   const [checkInModalOpen, setCheckInModalOpen] = useState(false);
 
@@ -83,13 +88,13 @@ const BookingDetailModal = ({
         {/* Header */}
         <div className="p-6 pb-4 shrink-0 border-b border-white/[0.05]">
           <div className="flex items-center gap-2">
-            <h3 className="text-xl font-black text-[var(--white)]/60">
+            <h3 className="text-xl font-bold text-[var(--white)]/60">
               #{booking.bookingId}
             </h3>
           </div>
           <div className="flex justify-center">
             <span
-              className={`px-2.5 py-0.5 rounded-md font-black uppercase tracking-wider border ${status.bg} ${status.text} ${status.border}`}
+              className={`px-2.5 py-0.5 rounded-md font-bold uppercase tracking-wider border ${status.bg} ${status.text} ${status.border}`}
             >
               {status.label}
             </span>
@@ -102,7 +107,7 @@ const BookingDetailModal = ({
           <div className="p-3.5 rounded-xl border border-white/[0.06] bg-white/[0.025]">
             <div className="flex items-center gap-1.5 text-gray-600 mb-2.5">
               <User size={12} />
-              <span className="text-[9px] font-black uppercase tracking-[0.1em]">
+              <span className="text-[9px] font-bold uppercase tracking-[0.1em]">
                 Thông tin khách
               </span>
             </div>
@@ -129,15 +134,15 @@ const BookingDetailModal = ({
           <div className="p-3.5 rounded-xl border border-white/[0.06] bg-white/[0.025]">
             <div className="flex items-center gap-1.5 text-gray-600 mb-2.5">
               <CalendarDays size={12} />
-              <span className="text-[9px] font-black uppercase tracking-[0.1em]">
+              <span className="text-[9px] font-bold uppercase tracking-[0.1em]">
                 Ngày ở
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-2 mb-3">
               <div className="p-2.5 rounded-lg border border-white/[0.04] bg-white/[0.02]">
-                <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.1em] mb-1">
-                  Check-in dự kiến
+                <p className="text-[9px] font-bold text-gray-600 uppercase tracking-[0.1em] mb-1">
+                  Ngày nhận phòng dự kiến
                 </p>
                 <p className="text-[12px] font-bold text-gray-300">
                   {formatDate(booking.checkInDate)}
@@ -150,8 +155,8 @@ const BookingDetailModal = ({
                 )}
               </div>
               <div className="p-2.5 rounded-lg border border-white/[0.04] bg-white/[0.02]">
-                <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.1em] mb-1">
-                  Check-out dự kiến
+                <p className="text-[9px] font-bold text-gray-600 uppercase tracking-[0.1em] mb-1">
+                  Ngày trả phòng dự kiến
                 </p>
                 <p className="text-[12px] font-bold text-gray-300">
                   {formatDate(booking.checkOutDate)}
@@ -173,20 +178,20 @@ const BookingDetailModal = ({
                 {!booking.actualCheckIn ? (
                   <button
                     onClick={() => setCheckInModalOpen(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-all bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white"
                   >
-                    <LogIn size={11} /> Check-in
+                    <LogIn size={11} /> Nhận phòng
                   </button>
                 ) : !booking.actualCheckOut ? (
                   <button
                     onClick={() => onCheckOut(booking.bookingId)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500 hover:text-white"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider cursor-pointer transition-all bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500 hover:text-white"
                   >
-                    <LogOut size={11} /> Check-out
+                    <LogOut size={11} /> Trả phòng
                   </button>
                 ) : (
                   <span className="text-[10px] text-emerald-500 font-bold flex items-center gap-1">
-                    <CheckCircle size={11} /> Đã check-out
+                    <CheckCircle size={11} /> Đã trả phòng
                   </span>
                 )}
               </div>
@@ -197,7 +202,7 @@ const BookingDetailModal = ({
             <div className="p-3.5 rounded-xl border border-white/[0.06] bg-white/[0.025]">
               <div className="flex items-center gap-1.5 text-gray-600 mb-2.5">
                 <Users size={12} />
-                <span className="text-[9px] font-black uppercase tracking-[0.1em]">
+                <span className="text-[9px] font-bold uppercase tracking-[0.1em]">
                   Khách lưu trú ({booking.guests.length})
                 </span>
               </div>
@@ -274,10 +279,10 @@ const BookingDetailModal = ({
                             Phòng {detail.room?.roomNumber}
                           </p>
                           <p className="text-[10px] text-gray-600">
-                            {detail.room?.roomType?.typeName} · Tầng{" "}
+                            {detail.room?.roomType?.typeName} . Tầng{" "}
                             {detail.room?.floor}
                             {detail.room?.roomType?.maxOccupancy &&
-                              ` · Tối đa ${detail.room.roomType.maxOccupancy} người`}
+                              ` . Tối đa ${detail.room.roomType.maxOccupancy} người`}
                           </p>
                         </div>
                       </div>
@@ -287,14 +292,14 @@ const BookingDetailModal = ({
                     </div>
 
                     <p className="text-[10px] text-gray-600 mb-3">
-                      {nights} đêm · Tổng tiền phòng:{" "}
+                      {nights} đêm . Tổng tiền phòng:{" "}
                       {formatVND(Number(detail.priceAtBooking))}
                     </p>
 
                     {/* Loại giường */}
-                    {detail.room?.roomType?.beds?.length > 0 && (
+                    {detail.room?.roomType?.roomBeds?.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mb-2">
-                        {detail.room.roomType.beds.map((b, idx) => (
+                        {detail.room.roomType.roomBeds.map((b, idx) => (
                           <span
                             key={idx}
                             className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white/[0.04] border border-white/[0.06] text-gray-400"
@@ -305,29 +310,10 @@ const BookingDetailModal = ({
                       </div>
                     )}
 
-                    {/* Tiện ích */}
-                    {detail.room?.roomType?.amenities?.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {detail.room.roomType.amenities.slice(0, 6).map((a) => (
-                          <span
-                            key={a.roomAmenityId}
-                            className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-semibold bg-[rgba(176,38,255,0.06)] border border-[rgba(176,38,255,0.15)] text-[#c77dff]"
-                          >
-                            <Shield size={8} /> {a.roomAmenityName}
-                          </span>
-                        ))}
-                        {detail.room.roomType.amenities.length > 6 && (
-                          <span className="text-[9px] text-gray-600 px-1">
-                            +{detail.room.roomType.amenities.length - 6} khác
-                          </span>
-                        )}
-                      </div>
-                    )}
-
                     {/* Services */}
                     {(detail.services ?? []).length > 0 && (
                       <div className="pt-2 border-t border-white/[0.04]">
-                        <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.1em] mb-1.5 flex items-center gap-1">
+                        <p className="text-[9px] font-bold text-gray-600 uppercase tracking-[0.1em] mb-1.5 flex items-center gap-1">
                           <Sparkles size={10} /> Dịch vụ
                         </p>
                         <div className="flex flex-col gap-1">
@@ -356,45 +342,27 @@ const BookingDetailModal = ({
             })}
           </div>
           {/* Total */}
-          <div className="flex items-center justify-between p-4 rounded-xl bg-[rgba(176,38,255,0.08)] border border-[rgba(176,38,255,0.18)]">
-            <div className="flex items-center gap-2">
-              <DollarSign size={16} className="text-[#b026ff]" />
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.1em] text-[#b026ff]">
-                  Tổng tiền
-                </p>
-                <p className="text-[9px] text-gray-600 mt-0.5">
-                  {booking.paymentMethod === "vnpay"
-                    ? "💳 VNPAY"
-                    : booking.paymentMethod === "cash"
-                      ? "💵 Tiền mặt"
-                      : "Chưa thanh toán"}
-                  {" · "}
-                  <span
-                    className={
-                      booking.paymentStatus === "paid"
-                        ? "text-emerald-400"
-                        : "text-amber-400"
-                    }
-                  >
-                    {booking.paymentStatus === "paid"
-                      ? "Đã thanh toán"
-                      : "Chưa thanh toán"}
-                  </span>
-                </p>
-              </div>
-            </div>
-            <p className="text-xl font-black text-[#dda6ff]">
-              {formatVND(parseFloat(booking.totalAmount))}
-            </p>
-          </div>
+          <TotalBookingDetail
+            paymentMethod={booking.paymentMethod}
+            paymentStatus={booking.paymentStatus}
+            totalAmount={booking.totalAmount}
+          />
+
+          {booking.paymentStatus === "unpaid" && (
+            <PaymentMethod
+              paymentMethod={paymentMethod}
+              onSelectMethod={onSelectMethod}
+              onCash={onCash}
+              cashErrorMessage={cashErrorMessage}
+            />
+          )}
         </div>
 
         {/* Footer actions */}
         <div className="p-6 pt-4 shrink-0 border-t border-white/[0.05] flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 h-11 rounded-xl text-[11px] font-black uppercase tracking-wider text-gray-500 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer"
+            className="flex-1 h-11 rounded-xl text-[11px] font-bold uppercase tracking-wider text-gray-500 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer"
           >
             Đóng
           </button>
@@ -402,16 +370,16 @@ const BookingDetailModal = ({
           {booking.status === "pending" && (
             <button
               onClick={() => onUpdateStatus(booking.bookingId, "confirmed")}
-              className="flex-[2] h-11 rounded-xl text-[11px] font-black uppercase tracking-wider text-white flex items-center justify-center gap-2 bg-gradient-to-br from-[#b026ff] to-[#7c3aed] shadow-[0_4px_16px_rgba(176,38,255,0.35)] hover:shadow-[0_6px_20px_rgba(176,38,255,0.5)] transition-all cursor-pointer"
+              className="flex-[2] h-11 rounded-xl text-[11px] font-bold uppercase tracking-wider text-white flex items-center justify-center gap-2 bg-gradient-to-br from-[#b026ff] to-[#7c3aed] shadow-[0_4px_16px_rgba(176,38,255,0.35)] hover:shadow-[0_6px_20px_rgba(176,38,255,0.5)] transition-all cursor-pointer"
             >
-              <CheckCircle size={13} /> Xác nhận đặt phòng
+              <CheckCircle size={13} /> Xác nhận đơn đặt phòng
             </button>
           )}
 
           {booking.status === "confirmed" && booking.actualCheckOut && (
             <button
               onClick={() => onUpdateStatus(booking.bookingId, "completed")}
-              className="flex-[2] h-11 rounded-xl text-[11px] font-black uppercase tracking-wider text-white flex items-center justify-center gap-2 bg-gradient-to-br from-emerald-600 to-emerald-700 shadow-[0_4px_16px_rgba(16,185,129,0.35)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.5)] transition-all cursor-pointer"
+              className="flex-[2] h-11 rounded-xl text-[11px] font-bold uppercase tracking-wider text-white flex items-center justify-center gap-2 bg-gradient-to-br from-emerald-600 to-emerald-700 shadow-[0_4px_16px_rgba(16,185,129,0.35)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.5)] transition-all cursor-pointer"
             >
               <CheckCircle size={13} /> Hoàn thành
             </button>

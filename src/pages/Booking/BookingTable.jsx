@@ -7,7 +7,7 @@ const BookingTable = ({ bookings, statusMap, onView, onCancel }) => {
       <div className="flex flex-col items-center justify-center py-16 text-gray-700">
         <CalendarDays size={32} className="mb-3 opacity-30" />
         <p className="text-xs font-black uppercase tracking-widest">
-          Không tìm thấy booking nào
+          Không tìm thấy đơn đặt phòng nào
         </p>
       </div>
     );
