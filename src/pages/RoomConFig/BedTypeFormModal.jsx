@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
-import { Save } from "lucide-react";
 import CancelButton from "@/components/common/CancelButton";
+import { useNoScroll } from "@/hooks/useNoScroll";
 import Stepper from "@/components/common/Stepper";
+import InputFormValidator from "@/components/common/InputFormValidator";
+import CloseButton from "@/components/common/CloseButton";
+import SaveButton from "@/components/common/SaveButton";
 
 const BedTypeFormModal = ({ isOpen, onClose, onSubmit, initialData }) => {
+  useNoScroll(isOpen);
   const [roomBedType, setRoomBedType] = useState("");
   const [capacity, setCapacity] = useState(1);
   const [errors, setErrors] = useState({});
@@ -34,20 +38,20 @@ const BedTypeFormModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[rgba(5,5,15,0.85)] backdrop-blur-[10px]"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-full max-w-sm rounded-2xl border border-[rgba(176,38,255,0.2)] shadow-2xl bg-gradient-to-br from-[#0f0a19] to-[#1a1425]">
+      <div className="w-full max-w-sm rounded-[8px] border border-white/[0.08] shadow-2xl bg-[#120d1e]/95 backdrop-blur-md">
         <div className="p-7 flex flex-col gap-5">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-lg font-black text-white tracking-tight">
+              <h2 className="text-base font-semibold text-zinc-200">
                 {isEdit ? "Cập nhật loại giường" : "Thêm loại giường"}
               </h2>
-              <p className="text-xs text-gray-600 mt-1">
+              <p className="text-xs text-zinc-500 mt-1">
                 {isEdit
                   ? `Chỉnh sửa "${initialData.roomBedType}"`
                   : "Nhập thông tin loại giường mới"}
@@ -56,33 +60,16 @@ const BedTypeFormModal = ({ isOpen, onClose, onSubmit, initialData }) => {
             <CancelButton onClose={onClose} />
           </div>
 
-          {/* Tên loại giường */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-              Tên loại giường <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={roomBedType}
-              onChange={(e) => {
-                setRoomBedType(e.target.value);
-                setErrors((p) => ({ ...p, roomBedType: undefined }));
-              }}
-              placeholder="VD: Giường đơn, Giường đôi, Giường King..."
-              maxLength={50}
-              autoFocus
-              className={`h-11 px-3.5 rounded-lg bg-white/[0.04] text-[13px] font-semibold text-gray-200 outline-none transition-all border ${
-                errors.roomBedType
-                  ? "border-red-500/50"
-                  : "border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)]"
-              }`}
-            />
-            {errors.roomBedType && (
-              <span className="text-[10px] text-red-400">
-                {errors.roomBedType}
-              </span>
-            )}
-          </div>
+          <InputFormValidator
+            label={"Tên loại giường"}
+            value={roomBedType}
+            onChange={(e) => {
+              setRoomBedType(e.target.value);
+              setErrors((p) => ({ ...p, roomBedType: undefined }));
+            }}
+            placeholder="VD: Giường đơn, Giường đôi..."
+            error={errors.roomBedType}
+          />
 
           {/* Sức chứa */}
           <Stepper
@@ -93,26 +80,16 @@ const BedTypeFormModal = ({ isOpen, onClose, onSubmit, initialData }) => {
               setErrors((p) => ({ ...p, capacity: undefined }));
             }}
             min={1}
+            error={errors.capacity}
           />
-          {errors.capacity && (
-            <span className="text-[10px] text-red-400">{errors.capacity}</span>
-          )}
 
           {/* Actions */}
           <div className="flex gap-3">
-            <button
-              onClick={onClose}
-              className="flex-1 h-11 rounded-xl text-[11px] font-black uppercase tracking-wider text-gray-500 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer"
-            >
-              Hủy
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="flex-[2] h-11 rounded-xl text-[11px] font-black uppercase tracking-wider text-white flex items-center justify-center gap-2 bg-gradient-to-br from-[#b026ff] to-[#7c3aed] shadow-[0_4px_16px_rgba(176,38,255,0.35)] hover:shadow-[0_6px_20px_rgba(176,38,255,0.5)] transition-all cursor-pointer"
-            >
-              <Save size={14} />
-              {isEdit ? "Cập nhật" : "Thêm"}
-            </button>
+            <CloseButton onClose={onClose} label="Hủy" />
+            <SaveButton
+              label={isEdit ? "Cập nhật" : "Thêm"}
+              onSave={handleSubmit}
+            />
           </div>
         </div>
       </div>

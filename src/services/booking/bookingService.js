@@ -6,8 +6,10 @@ export const bookingService = {
     return apiClient.post(API_ENDPOINTS.BOOKING.BOOKINGS, data);
   },
 
-  bookings: () => {
-    return apiClient.get(API_ENDPOINTS.BOOKING.BOOKINGS);
+  bookings: (params) => {
+    return apiClient.get(API_ENDPOINTS.BOOKING.BOOKINGS, {
+      params,
+    });
   },
 
   bookingById: (bookingId) => {

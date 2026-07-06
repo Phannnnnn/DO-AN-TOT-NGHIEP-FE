@@ -50,11 +50,11 @@ export const AuthContextProvider = ({ children }) => {
 
       try {
         const decoded = jwtDecode(access_token);
-        const { id, fullName, role } = decoded;
+        const { id, fullName, role, avatar } = decoded;
 
         dispatch({
           type: "LOGIN",
-          payload: { id, fullName, role },
+          payload: { id, fullName, role, avatar },
         });
       } catch {
         dispatch({ type: "STOP_LOADING" });
@@ -70,9 +70,9 @@ export const AuthContextProvider = ({ children }) => {
       localStorage.setItem("access_token", res.data.access_token);
       localStorage.setItem("refresh_token", res.data.refresh_token);
 
-      const { id, fullName, role } = res.data.user;
+      const { id, fullName, role, avatar } = res.data.user;
 
-      dispatch({ type: "LOGIN", payload: { id, fullName, role } });
+      dispatch({ type: "LOGIN", payload: { id, fullName, role, avatar } });
     }
     return res;
   };

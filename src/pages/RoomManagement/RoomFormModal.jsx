@@ -1,20 +1,25 @@
 import { useState, useEffect } from "react";
-import { Save } from "lucide-react";
+import { useNoScroll } from "@/hooks/useNoScroll";
 import Stepper from "@/components/common/Stepper";
 import CancelButton from "@/components/common/CancelButton";
+import InputFormValidator from "@/components/common/InputFormValidator";
+import SaveButton from "@/components/common/SaveButton";
+import CloseButton from "@/components/common/CloseButton";
 
 const STATUS_OPTIONS = [
   { value: "available", label: "Trống" },
   { value: "occupied", label: "Đang ở" },
-  { value: "cleaning", label: "Dọn dẹp" },
+  { value: "cleaning", label: "Cần dọn dẹp" },
   { value: "maintenance", label: "Bảo trì" },
+  { value: "progress", label: "Đang dọn" },
 ];
 
 const STATUS_COLOR = {
-  available: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400",
-  occupied: "bg-blue-500/10 border-blue-500/30 text-blue-400",
-  cleaning: "bg-amber-500/10 border-amber-500/30 text-amber-400",
-  maintenance: "bg-gray-500/10 border-gray-500/30 text-gray-400",
+  available: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
+  occupied: "bg-blue-500/10 border-blue-500/20 text-blue-400",
+  cleaning: "bg-amber-500/10 border-amber-500/20 text-amber-400",
+  maintenance: "bg-purple-500/10 border-purple-500/20 text-purple-400",
+  progress: "bg-rose-500/10 border-rose-500/20 text-rose-400",
 };
 
 const DEFAULT_FORM = {
@@ -31,6 +36,7 @@ const RoomFormModal = ({
   initialData,
   roomTypes = [],
 }) => {
+  useNoScroll(isOpen);
   const [formData, setFormData] = useState(DEFAULT_FORM);
   const [errors, setErrors] = useState({});
 
@@ -72,12 +78,12 @@ const RoomFormModal = ({
     if (formData.roomNumber.length > 10) e.roomNumber = "Tối đa 10 ký tự";
     if (!formData.floor || formData.floor < 1) e.floor = "Tầng phải ≥ 1";
     if (!formData.roomTypeId) e.roomTypeId = "Chọn loại phòng";
-    return e;
+    return Object.keys(e).length ? e : null;
   };
 
   const handleSubmit = () => {
     const e = validate();
-    if (Object.keys(e).length) {
+    if (e) {
       setErrors(e);
       return;
     }
@@ -91,20 +97,20 @@ const RoomFormModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[rgba(5,5,15,0.85)] backdrop-blur-[10px]"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-full max-w-md rounded-2xl border border-[rgba(176,38,255,0.2)] shadow-2xl bg-gradient-to-br from-[#0f0a19] to-[#1a1425]">
+      <div className="w-full max-w-md rounded-[8px] border border-white/[0.08] shadow-2xl bg-[#120d1e]/95 backdrop-blur-md">
         <div className="p-7 flex flex-col gap-5">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-lg font-black text-white tracking-tight">
+              <h2 className="text-base font-semibold text-zinc-200">
                 {isEdit ? "Cập nhật phòng" : "Thêm phòng mới"}
               </h2>
-              <p className="text-xs text-gray-600 mt-1">
+              <p className="text-xs text-zinc-500 mt-1">
                 {isEdit
                   ? `Chỉnh sửa thông tin phòng ${initialData.roomNumber}`
                   : "Điền thông tin để tạo phòng mới"}
@@ -114,29 +120,14 @@ const RoomFormModal = ({
           </div>
 
           {/* Số phòng + Tầng */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-                Số phòng <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={formData.roomNumber}
-                onChange={(e) => set("roomNumber", e.target.value)}
-                placeholder="VD: 101"
-                maxLength={10}
-                className={`h-11 px-3.5 rounded-lg bg-white/[0.04] text-[13px] font-semibold text-gray-200 outline-none transition-all border ${
-                  errors.roomNumber
-                    ? "border-red-500/50 focus:border-red-500"
-                    : "border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)]"
-                }`}
-              />
-              {errors.roomNumber && (
-                <span className="text-[10px] text-red-400">
-                  {errors.roomNumber}
-                </span>
-              )}
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <InputFormValidator
+              label={"Số phòng"}
+              value={formData.roomNumber}
+              onChange={(e) => set("roomNumber", e.target.value)}
+              placeholder="VD: 101"
+              error={errors.roomNumber}
+            />
 
             <div className="flex flex-col gap-1.5">
               <Stepper
@@ -144,29 +135,25 @@ const RoomFormModal = ({
                 value={formData.floor}
                 onChange={(v) => set("floor", v)}
                 min={1}
+                error={errors.floor}
               />
-              {errors.floor && (
-                <span className="text-[10px] text-red-400 mt-1 block">
-                  {errors.floor}
-                </span>
-              )}
             </div>
           </div>
 
           {/* Loại phòng */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-              Loại phòng <span className="text-red-500">*</span>
+            <label className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+              Loại phòng <span className="text-rose-500">*</span>
             </label>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5 font-mono">
               {roomTypes.map((rt) => (
                 <button
                   key={rt.roomTypeId}
                   onClick={() => set("roomTypeId", rt.roomTypeId)}
-                  className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold cursor-pointer transition-all border ${
+                  className={`px-2.5 py-1.5 rounded-[6px] text-xs font-medium cursor-pointer transition-all border ${
                     formData.roomTypeId === rt.roomTypeId
-                      ? "bg-[rgba(176,38,255,0.15)] border-[rgba(176,38,255,0.4)] text-[#dda6ff]"
-                      : "bg-white/[0.03] border-white/[0.07] text-gray-600 hover:border-white/[0.15] hover:text-gray-400"
+                      ? "bg-violet-500/10 border-violet-500/30 text-violet-300"
+                      : "bg-white/[0.02] border-white/[0.06] text-zinc-500 hover:border-white/[0.15] hover:text-zinc-400"
                   }`}
                 >
                   {rt.typeName}
@@ -174,15 +161,13 @@ const RoomFormModal = ({
               ))}
             </div>
             {errors.roomTypeId && (
-              <span className="text-[10px] text-red-400">
-                {errors.roomTypeId}
-              </span>
+              <span className="text-xs text-rose-400 font-mono">{errors.roomTypeId}</span>
             )}
           </div>
 
           {/* Trạng thái */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
+            <label className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
               Trạng thái
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -190,10 +175,10 @@ const RoomFormModal = ({
                 <button
                   key={opt.value}
                   onClick={() => set("status", opt.value)}
-                  className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold cursor-pointer transition-all border ${
+                  className={`px-3 py-1.5 rounded-[6px] text-xs font-medium cursor-pointer transition-all border ${
                     formData.status === opt.value
                       ? STATUS_COLOR[opt.value]
-                      : "bg-white/[0.03] border-white/[0.07] text-gray-600 hover:border-white/[0.15] hover:text-gray-400"
+                      : "bg-white/[0.02] border-white/[0.06] text-zinc-500 hover:border-white/[0.15] hover:text-zinc-400"
                   }`}
                 >
                   {opt.label}
@@ -204,19 +189,11 @@ const RoomFormModal = ({
 
           {/* Actions */}
           <div className="flex gap-3 pt-1">
-            <button
-              onClick={onClose}
-              className="flex-1 h-11 rounded-xl text-[11px] font-black uppercase tracking-wider text-gray-500 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer"
-            >
-              Hủy
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="flex-[2] h-11 rounded-xl text-[11px] font-black uppercase tracking-wider text-white flex items-center justify-center gap-2 bg-gradient-to-br from-[#b026ff] to-[#7c3aed] shadow-[0_4px_16px_rgba(176,38,255,0.35)] hover:shadow-[0_6px_20px_rgba(176,38,255,0.5)] transition-all cursor-pointer"
-            >
-              <Save size={14} />
-              {isEdit ? "Cập nhật" : "Tạo phòng"}
-            </button>
+            <CloseButton onClose={onClose} label="Hủy" />
+            <SaveButton
+              label={isEdit ? "Cập nhật" : "Tạo phòng"}
+              onSave={handleSubmit}
+            />
           </div>
         </div>
       </div>

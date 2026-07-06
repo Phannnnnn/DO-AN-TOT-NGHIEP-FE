@@ -1,260 +1,24 @@
-import { dashboardService } from "@/services/dashboard/dashboardService";
 import { useEffect, useState } from "react";
 import {
   TrendingUp,
   BedDouble,
   CalendarCheck,
-  Users,
-  DoorOpen,
-  Sparkles,
+  LogIn,
+  LogOut,
   Wrench,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  Loader2,
-  BarChart3,
-  Activity,
+  DollarSign,
+  CalendarRange,
+  CalendarDays,
 } from "lucide-react";
-import { formatVND } from "@/types/utils/fomatters/vndFomatter";
+import { dashboardService } from "@/services/dashboard/dashboardService";
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-const ROOM_STATUS = {
-  available: {
-    label: "Trống",
-    icon: DoorOpen,
-    color: "#10b981",
-    bg: "rgba(16,185,129,0.1)",
-    border: "rgba(16,185,129,0.25)",
-  },
-  occupied: {
-    label: "Đang ở",
-    icon: Users,
-    color: "#3b82f6",
-    bg: "rgba(59,130,246,0.1)",
-    border: "rgba(59,130,246,0.25)",
-  },
-  cleaning: {
-    label: "Dọn dẹp",
-    icon: Sparkles,
-    color: "#f59e0b",
-    bg: "rgba(245,158,11,0.1)",
-    border: "rgba(245,158,11,0.25)",
-  },
-  maintenance: {
-    label: "Bảo trì",
-    icon: Wrench,
-    color: "#6b7280",
-    bg: "rgba(107,114,128,0.1)",
-    border: "rgba(107,114,128,0.25)",
-  },
-};
-
-const BOOKING_STATUS = {
-  pending: {
-    label: "Chờ xác nhận",
-    icon: Clock,
-    color: "#f59e0b",
-    bg: "rgba(245,158,11,0.1)",
-    border: "rgba(245,158,11,0.25)",
-  },
-  confirmed: {
-    label: "Đã xác nhận",
-    icon: CalendarCheck,
-    color: "#3b82f6",
-    bg: "rgba(59,130,246,0.1)",
-    border: "rgba(59,130,246,0.25)",
-  },
-  completed: {
-    label: "Hoàn thành",
-    icon: CheckCircle2,
-    color: "#10b981",
-    bg: "rgba(16,185,129,0.1)",
-    border: "rgba(16,185,129,0.25)",
-  },
-  cancelled: {
-    label: "Đã hủy",
-    icon: XCircle,
-    color: "#ef4444",
-    bg: "rgba(239,68,68,0.1)",
-    border: "rgba(239,68,68,0.25)",
-  },
-};
-
-// ── Sub-components ────────────────────────────────────────────────────────────
-
-const SectionTitle = ({ icon: Icon, label }) => (
-  <div className="flex items-center gap-2.5 mb-4">
-    <Icon size={13} className="text-[#b026ff]" />
-    <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.15em]">
-      {label}
-    </span>
-    <div className="flex-1 h-px bg-[rgba(176,38,255,0.1)]" />
-  </div>
-);
-
-const RevenueCard = ({ label, value, accent = false }) => (
-  <div
-    className={`relative overflow-hidden flex flex-col justify-between p-5 rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 ${
-      accent
-        ? "bg-gradient-to-br from-[#1a0d2e] to-[#1a1425] border-[rgba(176,38,255,0.35)] shadow-[0_4px_24px_rgba(176,38,255,0.15)]"
-        : "bg-gradient-to-br from-[#0f0a19] to-[#1a1425] border-[rgba(176,38,255,0.12)]"
-    }`}
-  >
-    {accent && (
-      <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full pointer-events-none bg-[#b026ff] blur-[50px] opacity-20" />
-    )}
-    <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.15em] mb-2">
-      {label}
-    </p>
-    <p
-      className={`text-[1.4rem] font-black leading-none ${accent ? "text-[#dda6ff]" : "text-[#c77dff]"}`}
-    >
-      {formatVND(value)}
-    </p>
-  </div>
-);
-
-const RoomStatCard = ({ statusKey, count }) => {
-  const cfg = ROOM_STATUS[statusKey];
-  if (!cfg) return null;
-  const Icon = cfg.icon;
-  return (
-    <div
-      className="flex items-center gap-3 p-3.5 rounded-xl border transition-all duration-200 hover:-translate-y-0.5"
-      style={{ background: cfg.bg, borderColor: cfg.border }}
-    >
-      <div
-        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-        style={{ background: `${cfg.color}22` }}
-      >
-        <Icon size={15} style={{ color: cfg.color }} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.1em] truncate">
-          {cfg.label}
-        </p>
-        <p
-          className="text-[1.1rem] font-black leading-tight"
-          style={{ color: cfg.color }}
-        >
-          {count}
-        </p>
-      </div>
-    </div>
-  );
-};
-
-const BookingStatCard = ({ statusKey, count }) => {
-  const cfg = BOOKING_STATUS[statusKey];
-  if (!cfg) return null;
-  const Icon = cfg.icon;
-  return (
-    <div
-      className="flex items-center gap-3 p-3.5 rounded-xl border transition-all duration-200 hover:-translate-y-0.5"
-      style={{ background: cfg.bg, borderColor: cfg.border }}
-    >
-      <div
-        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-        style={{ background: `${cfg.color}22` }}
-      >
-        <Icon size={15} style={{ color: cfg.color }} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.1em] truncate">
-          {cfg.label}
-        </p>
-        <p
-          className="text-[1.1rem] font-black leading-tight"
-          style={{ color: cfg.color }}
-        >
-          {count}
-        </p>
-      </div>
-    </div>
-  );
-};
-
-const OccupancyRing = ({ occupied, total, rate }) => {
-  const circumference = 2 * Math.PI * 36;
-  const filled = (rate / 100) * circumference;
-
-  return (
-    <div className="flex flex-col items-center justify-center gap-4 p-6 rounded-2xl bg-gradient-to-br from-[#0f0a19] to-[#1a1425] border border-[rgba(176,38,255,0.12)]">
-      <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.15em]">
-        Tỷ lệ lấp đầy hôm nay
-      </p>
-
-      <div className="relative flex items-center justify-center">
-        <svg width="88" height="88" viewBox="0 0 88 88">
-          <circle
-            cx="44"
-            cy="44"
-            r="36"
-            fill="none"
-            stroke="rgba(176,38,255,0.1)"
-            strokeWidth="6"
-          />
-          <circle
-            cx="44"
-            cy="44"
-            r="36"
-            fill="none"
-            stroke="url(#ring-grad)"
-            strokeWidth="6"
-            strokeLinecap="round"
-            strokeDasharray={`${filled} ${circumference}`}
-            strokeDashoffset={circumference * 0.25}
-            transform="rotate(-90 44 44)"
-          />
-          <defs>
-            <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#b026ff" />
-              <stop offset="100%" stopColor="#7c3aed" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <div className="absolute flex flex-col items-center">
-          <span className="text-[1.3rem] font-black text-[#dda6ff] leading-none">
-            {rate}%
-          </span>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-4 text-center">
-        <div>
-          <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.1em]">
-            Đang ở
-          </p>
-          <p className="text-sm font-black text-[#60a5fa]">{occupied}</p>
-        </div>
-        <div className="w-px h-6 bg-white/10" />
-        <div>
-          <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.1em]">
-            Tổng
-          </p>
-          <p className="text-sm font-black text-gray-400">{total}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const NewBookingsBadge = ({ count }) => (
-  <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-br from-[#0f0a19] to-[#1a1425] border border-[rgba(176,38,255,0.12)]">
-    <div>
-      <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em] mb-1">
-        Booking mới hôm nay
-      </p>
-      <p className="text-[1.6rem] font-black text-[#dda6ff] leading-none">
-        {count}
-      </p>
-    </div>
-    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[rgba(176,38,255,0.12)] border border-[rgba(176,38,255,0.2)]">
-      <Activity size={18} className="text-[#b026ff]" />
-    </div>
-  </div>
-);
+import SectionTitle from "./SectionTitle";
+import RevenueCard from "./RevenueCard";
+import OperationsBadge from "./OperationsBadge";
+import RoomStatCard, { ROOM_STATUS } from "./RoomStatCard";
+import BookingStatCard, { BOOKING_STATUS } from "./BookingStatCard";
+import OccupancyRing from "./OccupancyRing";
+import LoadingSection from "@/components/common/LoadingSection";
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
@@ -277,49 +41,100 @@ const Dashboard = () => {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="animate-spin text-[#b026ff]" size={32} />
-      </div>
-    );
+    return <LoadingSection />;
   }
 
   if (!summary) return null;
 
-  const { revenue, rooms, bookings, occupancyRate } = summary;
+  const { revenue, rooms, bookings, occupancyRate, operations } = summary;
 
   return (
-    <div className="p-8 max-w-[1600px] mx-auto min-h-screen bg-[#0f0a19]">
-      {/* Page header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-1">
-          <BarChart3 size={13} className="text-[#b026ff]" />
-          <span className="text-[10px] font-black text-gray-600 uppercase tracking-[0.2em]">
-            Tổng quan
-          </span>
+    <div className="p-4 sm:p-8">
+      {/* Header */}
+      <div className="flex flex-wrap justify-between items-center gap-4 sticky top-0 z-30 bg-[#120d1e]/95 backdrop-blur-md px-5 py-4 rounded-[8px] border border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.65)] mb-6">
+        <div>
+          <h2 className="text-base font-medium text-zinc-100">Tổng quan hoạt động</h2>
+          <p className="text-xs text-zinc-500 mt-0.5">Thống kê dữ liệu hoạt động & doanh thu thời gian thực</p>
         </div>
-        <h1 className="text-2xl font-black text-[#f5f0ff] tracking-tight">
-          Dashboard
-        </h1>
       </div>
 
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-6">
         {/* ── Doanh thu ── */}
         <section>
-          <SectionTitle icon={TrendingUp} label="Doanh thu" />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <RevenueCard label="Hôm nay" value={revenue.today} />
-            <RevenueCard label="Tháng này" value={revenue.thisMonth} />
-            <RevenueCard label="Năm nay" value={revenue.thisYear} accent />
+          <SectionTitle icon={TrendingUp} label="Doanh thu nhanh" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <RevenueCard
+              label="Hôm nay"
+              value={revenue.today}
+              icon={DollarSign}
+              iconColor="text-blue-400"
+              colorClass="from-[#1e3a5f]/25 to-[#121f3d]/15"
+              borderColor="border-blue-500/10"
+            />
+            <RevenueCard
+              label="Tuần này"
+              value={revenue.thisWeek}
+              icon={CalendarRange}
+              iconColor="text-emerald-400"
+              colorClass="from-[#1b4332]/25 to-[#081c15]/15"
+              borderColor="border-emerald-500/10"
+            />
+            <RevenueCard
+              label="Tháng này"
+              value={revenue.thisMonth}
+              icon={CalendarDays}
+              iconColor="text-amber-400"
+              colorClass="from-[#472c0c]/25 to-[#2c1b04]/15"
+              borderColor="border-amber-500/10"
+            />
+            <RevenueCard
+              label="Năm nay"
+              value={revenue.thisYear}
+              icon={TrendingUp}
+              iconColor="text-pink-400"
+              colorClass="from-[#4a0e2e]/25 to-[#2a081a]/15"
+              borderColor="border-pink-500/10"
+              accent
+            />
           </div>
         </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* ── Phòng + Booking (left 2/3) ── */}
-          <div className="lg:col-span-2 flex flex-col gap-8">
+        {/* ── Arrival & Departures (Operations) ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <OperationsBadge
+            label="Khách nhận phòng"
+            count={operations?.arrivalsToday || 0}
+            icon={LogIn}
+            color="#10b981"
+            accent
+          />
+          <OperationsBadge
+            label="Khách trả phòng"
+            count={operations?.departuresToday || 0}
+            icon={LogOut}
+            color="#eab308"
+            accent
+          />
+          <OperationsBadge
+            label="Đơn đặt phòng mới"
+            count={bookings.newToday}
+            icon={CalendarCheck}
+            color="#3b82f6"
+          />
+          <OperationsBadge
+            label="Phòng đang dọn/bảo trì"
+            count={(rooms.cleaning || 0) + (rooms.maintenance || 0)}
+            icon={Wrench}
+            color="#ef4444"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+          {/* ── Tình trạng phòng + Booking (left 2/3) ── */}
+          <div className="lg:col-span-2 flex flex-col gap-6">
             {/* Tình trạng phòng */}
             <section>
-              <SectionTitle icon={BedDouble} label="Tình trạng phòng" />
+              <SectionTitle icon={BedDouble} label="Tình trạng phòng thực tế" />
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {Object.keys(ROOM_STATUS).map((key) => (
                   <RoomStatCard
@@ -333,9 +148,8 @@ const Dashboard = () => {
 
             {/* Booking */}
             <section>
-              <SectionTitle icon={CalendarCheck} label="Đặt phòng" />
+              <SectionTitle icon={CalendarCheck} label="Trạng thái đặt phòng" />
               <div className="flex flex-col gap-3">
-                <NewBookingsBadge count={bookings.newToday} />
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {Object.keys(BOOKING_STATUS).map((key) => (
                     <BookingStatCard
@@ -349,10 +163,9 @@ const Dashboard = () => {
             </section>
           </div>
 
-          {/* ── Occupancy (right 1/3) ── */}
+          {/* ── Lấp đầy (right 1/3) ── */}
           <div className="flex flex-col gap-4">
-            <section>
-              <SectionTitle icon={Users} label="Lấp đầy" />
+            <section className="h-full pt-10">
               <OccupancyRing
                 occupied={occupancyRate.occupied}
                 total={occupancyRate.total}

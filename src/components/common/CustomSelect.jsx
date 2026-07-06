@@ -27,7 +27,7 @@ const CustomSelect = ({ label, value, onChange, options, colorMap }) => {
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
+        <label className="text-xs font-bold text-gray-600">
           {label}
         </label>
       )}
@@ -37,11 +37,10 @@ const CustomSelect = ({ label, value, onChange, options, colorMap }) => {
         ref={btnRef}
         type="button"
         onClick={handleToggle}
-        className={`w-full h-11 px-3.5 rounded-lg text-[13px] font-bold flex items-center justify-between gap-2 transition-all
-          border ${
-            open
-              ? "border-[rgba(176,38,255,0.5)] bg-[rgba(176,38,255,0.07)]"
-              : "border-[rgba(176,38,255,0.15)] bg-white/[0.04] hover:border-[rgba(176,38,255,0.3)]"
+        className={`w-full h-11 px-3.5 rounded-lg text-sm font-bold flex items-center justify-between gap-2 transition-all
+ border ${open
+            ? "border-[rgba(176,38,255,0.5)] bg-[rgba(176,38,255,0.07)]"
+            : "border-[rgba(176,38,255,0.15)] bg-white/[0.04] hover:border-[rgba(176,38,255,0.3)]"
           }`}
         style={{ color: accentColor ?? "#e5e7eb" }}
       >
@@ -88,11 +87,10 @@ const CustomSelect = ({ label, value, onChange, options, colorMap }) => {
                     onChange(opt.value);
                     setOpen(false);
                   }}
-                  className={`w-full px-3.5 py-2.5 text-[13px] flex items-center gap-2 text-left transition-colors
-                    ${
-                      isSelected
-                        ? "bg-[rgba(176,38,255,0.12)] font-bold"
-                        : "font-medium hover:bg-white/[0.05]"
+                  className={`w-full px-3.5 py-2.5 text-sm flex items-center gap-2 text-left transition-colors
+ ${isSelected
+                      ? "bg-[rgba(176,38,255,0.12)] font-bold"
+                      : "font-medium hover:bg-white/[0.05]"
                     }`}
                   style={{
                     color: optColor ?? (isSelected ? "#dda6ff" : "#9ca3af"),

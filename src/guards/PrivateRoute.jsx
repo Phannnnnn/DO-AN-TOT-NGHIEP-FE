@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 
 export const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  const allowedRoles = ["ADMIN", "HOUSEKEEPING"];
+  const allowedRoles = ["ADMIN", "HOUSEKEEPING", "RECEPTIONIST"];
 
   if (loading) {
     return <Loading />;

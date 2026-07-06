@@ -30,8 +30,15 @@ apiClient.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
+    const isAuthRoute =
+      originalRequest.url?.endsWith(API_ENDPOINTS.AUTH.LOGIN) ||
+      originalRequest.url?.endsWith(API_ENDPOINTS.AUTH.REFRESH_TOKEN);
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthRoute
+    ) {
       originalRequest._retry = true;
 
       try {

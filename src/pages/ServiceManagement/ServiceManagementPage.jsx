@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
-import { Loader2, Sparkles, Tag } from "lucide-react";
-import { toast } from "react-toastify";
+import { Sparkles, Tag } from "lucide-react";
+import LoadingSection from "@/components/common/LoadingSection";
 
 import ServiceTable from "./ServiceTable";
 import ServiceFormModal from "./ServiceFormModal";
@@ -11,6 +11,7 @@ import SelectField from "@/components/common/SelectField";
 import { service_room_typeService, service_roomService } from "@/services";
 import ServiceTypeTable from "./ServiceTypeTable ";
 import ServiceTypeFormModal from "./ServiceTypeFormModal ";
+import { useNotification } from "@/context/ContextProvider";
 
 const TABS = [
   { key: "services", label: "Dịch vụ", icon: Sparkles },
@@ -39,11 +40,14 @@ const ServiceManagementPage = () => {
   const [typeToDelete, setTypeToDelete] = useState(null);
   const [confirmTypeOpen, setConfirmTypeOpen] = useState(false);
 
+  const toast = useNotification();
+
   // ── Fetch ────────────────────────────────────────────────
   const fetchServices = async () => {
     setServicesLoading(true);
     try {
       const res = await service_roomService.services();
+      console.log(res);
       if (res.success) setServices(res.data || []);
     } finally {
       setServicesLoading(false);
@@ -77,6 +81,7 @@ const ServiceManagementPage = () => {
   const handleServiceSubmit = async (data) => {
     try {
       let res;
+      console.log(data);
       if (selectedService?.serviceId) {
         res = await service_roomService.update(selectedService.serviceId, data);
         if (res.success) {
@@ -85,25 +90,25 @@ const ServiceManagementPage = () => {
               s.serviceId === selectedService.serviceId ? res.data : s,
             ),
           );
-          toast.success("Cập nhật dịch vụ thành công.");
+          toast.success("Thành công", "Cập nhật dịch vụ thành công.");
           setIsServiceFormOpen(false);
           setSelectedService(null);
         } else {
-          toast.error(extractError(res));
+          toast.error("Lỗi", extractError(res));
         }
       } else {
         res = await service_roomService.create(data);
         if (res.success) {
           setServices((prev) => [...prev, res.data]);
-          toast.success("Thêm dịch vụ thành công.");
+          toast.success("Thành công", "Thêm dịch vụ thành công.");
           setIsServiceFormOpen(false);
           setSelectedService(null);
         } else {
-          toast.error(extractError(res));
+          toast.error("Lỗi", extractError(res));
         }
       }
     } catch (error) {
-      toast.error(extractError(error));
+      toast.error("Lỗi", extractError(error));
     }
   };
 
@@ -127,26 +132,26 @@ const ServiceManagementPage = () => {
               t.serviceTypeId === selectedType.serviceTypeId ? res.data : t,
             ),
           );
-          toast.success("Cập nhật loại dịch vụ thành công.");
+          toast.success("Thành công", "Cập nhật loại dịch vụ thành công.");
           setIsTypeFormOpen(false);
           setSelectedType(null);
         } else {
-          toast.error(extractError(res));
+          toast.error("Lỗi", extractError(res));
         }
       } else {
         res = await service_room_typeService.create(data);
         if (res.success) {
           setServiceTypesList((prev) => [...prev, res.data]);
           setServiceTypes((prev) => [...prev, res.data]);
-          toast.success("Thêm loại dịch vụ thành công.");
+          toast.success("Thành công", "Thêm loại dịch vụ thành công.");
           setIsTypeFormOpen(false);
           setSelectedType(null);
         } else {
-          toast.error(extractError(res));
+          toast.error("Lỗi", extractError(res));
         }
       }
     } catch (error) {
-      toast.error(extractError(error));
+      toast.error("Lỗi", extractError(error));
     }
   };
 
@@ -159,12 +164,12 @@ const ServiceManagementPage = () => {
         setServices((prev) =>
           prev.filter((s) => s.serviceId !== serviceToDelete.serviceId),
         );
-        toast.success("Xóa dịch vụ thành công.");
+        toast.success("Thành công", "Xóa dịch vụ thành công.");
       } else {
-        toast.error(extractError(res));
+        toast.error("Lỗi", extractError(res));
       }
     } catch (e) {
-      toast.error(extractError(e));
+      toast.error("Lỗi", extractError(e));
     } finally {
       setServiceToDelete(null);
       setConfirmServiceOpen(false);
@@ -184,12 +189,12 @@ const ServiceManagementPage = () => {
         setServiceTypes((prev) =>
           prev.filter((t) => t.serviceTypeId !== typeToDelete.serviceTypeId),
         );
-        toast.success("Xóa loại dịch vụ thành công.");
+        toast.success("Thành công", "Xóa loại dịch vụ thành công.");
       } else {
-        toast.error(extractError(res));
+        toast.error("Lỗi", extractError(res));
       }
     } catch (e) {
-      toast.error(extractError(e));
+      toast.error("Lỗi", extractError(e));
     } finally {
       setTypeToDelete(null);
       setConfirmTypeOpen(false);
@@ -229,10 +234,10 @@ const ServiceManagementPage = () => {
   const isLoading = activeTab === "services" ? servicesLoading : typesLoading;
 
   return (
-    <div className="p-8 max-w-[1600px] mx-auto min-h-screen bg-[#0f0a19]">
+    <div className="p-4 sm:p-8">
       {/* Header */}
-      <div className="flex flex-wrap justify-between items-center gap-4 sticky top-0 z-30 bg-[#0d0d1a]/85 backdrop-blur-[12px] px-5 py-4 rounded-[0.875rem] border border-violet-500/12 shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
-        <div className="flex flex-wrap gap-3 items-center flex-1">
+      <div className="flex flex-col md:flex-row md:justify-between gap-4 sticky top-0 z-30 bg-[#120d1e]/90 backdrop-blur-md px-4 py-3 rounded-[8px] border border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.65)]">
+        <div className={`flex flex-col lg:flex-row gap-3`}>
           <SearchPrimary
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -243,60 +248,64 @@ const ServiceManagementPage = () => {
             }
           />
 
-          <div className="flex gap-1.5">
-            {TABS.map(({ key, label, icon: Icon }) => (
-              <button
-                key={key}
-                onClick={() => setActiveTab(key)}
-                className={`flex items-center gap-1.5 px-3.5 py-[5px] rounded-[6px] text-[10px] font-black tracking-[0.08em] uppercase cursor-pointer transition-all duration-200 border ${
-                  activeTab === key
-                    ? "bg-violet-500/25 text-violet-300 border-violet-500/50 shadow-[0_0_12px_rgba(139,92,246,0.2)]"
-                    : "bg-white/[0.04] text-gray-500 border-white/[0.06] hover:bg-white/[0.07] hover:text-gray-400"
-                }`}
-              >
-                <Icon size={11} />
-                {label}
-              </button>
-            ))}
-          </div>
+          <div className="flex gap-1 md:gap-2 flex-wrap">
+            <div className="flex gap-1.5 shrink-0">
+              {TABS.map(({ key, label, icon: Icon }) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveTab(key)}
+                  className={`flex items-center gap-1.5 px-3.5 py-[5px] rounded-[6px] text-xs font-medium cursor-pointer transition-all duration-200 border shrink-0 ${
+                    activeTab === key
+                      ? "bg-violet-500/10 text-violet-300 border-violet-500/30"
+                      : "bg-[#1a1528]/40 text-zinc-400 border-white/[0.04] hover:bg-[#201a33]/60 hover:text-zinc-200"
+                  }`}
+                >
+                  <Icon size={11} className="shrink-0" />
+                  {label}
+                </button>
+              ))}
+            </div>
 
-          {activeTab === "services" && (
-            <SelectField
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              options={[
-                { value: "all", label: "Tất cả loại" },
-                ...serviceTypes.map((type) => ({
-                  value: String(type.serviceTypeId),
-                  label: type.typeName,
-                })),
-              ]}
-            />
-          )}
+            {activeTab === "services" && (
+              <div className="">
+                <SelectField
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  options={[
+                    { value: "all", label: "Tất cả loại" },
+                    ...serviceTypes.map((type) => ({
+                      value: String(type.serviceTypeId),
+                      label: type.typeName,
+                    })),
+                  ]}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
-        <AddButton
-          onAddItem={() => {
-            if (activeTab === "services") {
-              setSelectedService(null);
-              setIsServiceFormOpen(true);
-            } else {
-              setSelectedType(null);
-              setIsTypeFormOpen(true);
+        <div className="flex justify-end">
+          <AddButton
+            onAddItem={() => {
+              if (activeTab === "services") {
+                setSelectedService(null);
+                setIsServiceFormOpen(true);
+              } else {
+                setSelectedType(null);
+                setIsTypeFormOpen(true);
+              }
+            }}
+            addLabel={
+              activeTab === "services" ? "Thêm dịch vụ" : "Thêm loại dịch vụ"
             }
-          }}
-          addLabel={
-            activeTab === "services" ? "Thêm dịch vụ" : "Thêm loại dịch vụ"
-          }
-        />
+          />
+        </div>
       </div>
 
       {/* Content */}
       <div className="mt-8">
         {isLoading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="animate-spin text-[#b026ff]" size={32} />
-          </div>
+          <LoadingSection />
         ) : activeTab === "services" ? (
           <ServiceTable
             services={filteredServices}

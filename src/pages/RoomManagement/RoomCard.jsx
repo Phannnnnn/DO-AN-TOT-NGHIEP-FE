@@ -9,40 +9,49 @@ const RoomCard = ({ room, onView, onEdit, onDelete, statusMap }) => {
   const beds = room.roomBeds || [];
   const capacity = room.roomType?.maxOccupancy ?? room.capacity ?? 0;
   const price = room.pricePlan?.basePrice ?? room.roomType?.basePrice;
+  const coverImage =
+    room.roomImages?.find((img) => img.isCover)?.url ??
+    room.roomImages?.[0]?.url ??
+    null;
 
   return (
     <div
       onClick={() => onView(room)}
-      className="relative cursor-pointer group overflow-hidden flex flex-col min-h-[240px] rounded-2xl p-5 transition-all duration-200 hover:-translate-y-1 bg-gradient-to-br from-[#0f0a19] to-[#1a1425] border border-[#b026ff]/15 shadow-[0_4px_24px_rgba(0,0,0,0.4)] hover:border-[#b026ff]/45 hover:shadow-[0_8px_32px_rgba(176,38,255,0.18)]"
+      className="relative cursor-pointer group overflow-hidden flex flex-col min-h-[240px] rounded-[8px] p-5 transition-all duration-200 hover:-translate-y-0.5 bg-[#120d1e]/80 border border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.65)] hover:border-violet-500/30 hover:shadow-[0_8px_32px_rgba(124,58,237,0.12)]"
     >
       {/* Status accent bar */}
       <div
-        className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl"
-        style={{ background: status.accent }}
+        className="absolute top-0 left-0 right-0 h-0.5 rounded-t-[8px]"
+        style={{ backgroundColor: status.color }}
       />
 
-      {/* Glow blob */}
-      <div
-        className="absolute -top-10 -right-10 w-28 h-28 rounded-full pointer-events-none"
-        style={{ background: status.glow, filter: "blur(50px)", opacity: 0.35 }}
-      />
+      {/* Cover image */}
+      {coverImage && (
+        <div className="absolute inset-0 rounded-[8px] overflow-hidden pointer-events-none">
+          <img
+            src={coverImage}
+            alt={room.roomNumber}
+            className="w-full h-full object-cover opacity-[0.08] group-hover:opacity-[0.14] transition-opacity duration-200"
+          />
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div>
-          <p className="text-[9px] font-black text-white/60 uppercase tracking-[0.15em] mb-0.5">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 mb-0.5">
             Phòng
           </p>
-          <h4 className="text-[2rem] font-black leading-none text-[#f5f0ff] group-hover:text-violet-400 transition-colors">
+          <h4 className="text-2xl font-semibold leading-none font-mono text-[#f5f0ff] group-hover:text-violet-400 transition-colors">
             {room.roomNumber}
           </h4>
         </div>
         <span
-          className="px-2.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider"
+          className="px-2.5 py-0.5 rounded-[4px] text-[10px] font-semibold uppercase tracking-wider border"
           style={{
             background: status.bg,
             color: status.text,
-            border: `1px solid ${status.border}`,
+            borderColor: status.border,
           }}
         >
           {status.label}
@@ -50,32 +59,32 @@ const RoomCard = ({ room, onView, onEdit, onDelete, statusMap }) => {
       </div>
 
       {/* Room type */}
-      <p className="flex items-center gap-1.5 text-[11px] font-bold text-white/90 mb-3">
-        <Tag size={11} className="text-[#b026ff] shrink-0" />
+      <p className="flex items-center gap-1.5 text-xs font-medium text-zinc-300 mb-3">
+        <Tag size={11} className="text-violet-400 shrink-0" />
         {room.roomType?.typeName || "—"}
       </p>
 
       {/* Beds */}
-      <div className="flex flex-wrap gap-1.5 flex-1 items-start">
+      <div className="flex flex-wrap gap-1.5 flex-1 items-start font-mono">
         {beds.length > 0 ? (
           beds.map((bed, i) => (
             <span
               key={i}
-              className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold text-yellow-400/60 border border-white/10 bg-white/10"
+              className="flex items-center gap-1 px-2 py-1 rounded-[4px] text-xs font-medium text-zinc-400 border border-white/[0.04] bg-white/[0.02]"
             >
-              <Bed size={10} className="text-white/60 shrink-0" />
+              <Bed size={10} className="text-zinc-500 shrink-0" />
               {bed.quantity} {bed.roomBedType}
             </span>
           ))
         ) : (
-          <span className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] text-white/60 border border-white/[0.04] bg-white/[0.02]">
+          <span className="flex items-center gap-1 px-2 py-1 rounded-[4px] text-xs text-zinc-500 border border-white/[0.04] bg-white/[0.02]">
             <Bed size={10} />
             Chưa có
           </span>
         )}
 
         {capacity > 0 && (
-          <span className="ml-auto flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-[rgba(176,38,255,0.1)] border border-[rgba(176,38,255,0.2)] text-[#dda6ff]">
+          <span className="ml-auto flex items-center gap-1 px-2.5 py-1 rounded-[4px] text-xs font-medium bg-white/[0.04] border border-white/[0.08] text-zinc-400">
             <Users size={10} />
             {capacity}
           </span>
@@ -84,17 +93,17 @@ const RoomCard = ({ room, onView, onEdit, onDelete, statusMap }) => {
 
       {/* Price */}
       <div className="mt-4 pt-3.5 border-t border-white/[0.05]">
-        <p className="text-[9px] font-black text-white/60 uppercase tracking-[0.12em]">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
           Giá phòng
         </p>
-        <p className="text-[1.15rem] font-black text-[#c77dff] mt-0.5">
+        <p className="text-base font-semibold font-mono text-violet-300 mt-0.5">
           {formatVND(price)}
         </p>
       </div>
 
       {/* Footer */}
       <div className="mt-3 flex items-center justify-between h-9">
-        <span className="flex items-center gap-1 text-[9px] font-black uppercase text-white/60 group-hover:text-violet-400 transition-colors">
+        <span className="flex items-center gap-1 text-xs font-medium text-zinc-400 group-hover:text-violet-400 transition-colors">
           <Eye size={11} /> Chi tiết
         </span>
         <div className="flex gap-1.5 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200">

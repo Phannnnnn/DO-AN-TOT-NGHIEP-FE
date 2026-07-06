@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Save, ChevronRight, ChevronLeft } from "lucide-react";
+import { useNoScroll } from "@/hooks/useNoScroll";
 
 import StepBasicInfo from "./steps/StepBasicInfo";
 import StepBeds from "./steps/StepBeds";
@@ -34,9 +35,8 @@ const DEFAULT_PLAN = {
   dateTo: "",
 };
 
-const DEFAULT_IMAGE = { url: "", altText: null, isCover: false };
+const DEFAULT_IMAGE = { url: "", altText: "", isCover: false };
 
-// ─────────────────────────────────────────────────────────────
 const RoomTypeFormModal = ({
   isOpen,
   onClose,
@@ -45,6 +45,7 @@ const RoomTypeFormModal = ({
   amenities = [],
   bedTypes = [],
 }) => {
+  useNoScroll(isOpen);
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState(DEFAULT_FORM);
   const [errors, setErrors] = useState({});
@@ -69,7 +70,7 @@ const RoomTypeFormModal = ({
         })),
         images: (initialData.roomImages || []).map((img) => ({
           url: img.url,
-          altText: img.altText ?? null,
+          altText: img.altText ?? "",
           isCover: img.isCover ?? false,
         })),
         pricePlans: (initialData.pricePlan || []).map((p) => ({
@@ -93,7 +94,6 @@ const RoomTypeFormModal = ({
     setErrors((p) => ({ ...p, [key]: undefined }));
   };
 
-  // ── Validation per step ──────────────────────────────────
   const validateStep = (s) => {
     const e = {};
     if (s === 0) {
@@ -160,7 +160,6 @@ const RoomTypeFormModal = ({
     });
   };
 
-  // ── Bed helpers ──────────────────────────────────────────
   const addBed = () =>
     set("roomBeds", [
       ...formData.roomBeds,
@@ -177,7 +176,6 @@ const RoomTypeFormModal = ({
       formData.roomBeds.map((b, idx) => (idx === i ? { ...b, [key]: val } : b)),
     );
 
-  // ── Amenity helpers ──────────────────────────────────────
   const toggleAmenity = (id) => {
     const ids = formData.amenityIds.includes(id)
       ? formData.amenityIds.filter((x) => x !== id)
@@ -185,7 +183,6 @@ const RoomTypeFormModal = ({
     set("amenityIds", ids);
   };
 
-  // ── Image helpers ────────────────────────────────────────
   const addImage = () =>
     set("images", [...formData.images, { ...DEFAULT_IMAGE }]);
   const removeImage = (i) =>
@@ -212,7 +209,6 @@ const RoomTypeFormModal = ({
     }
   };
 
-  // ── Plan helpers ─────────────────────────────────────────
   const addPlan = () =>
     set("pricePlans", [...formData.pricePlans, { ...DEFAULT_PLAN }]);
   const removePlan = (i) =>
@@ -230,7 +226,6 @@ const RoomTypeFormModal = ({
     setErrors((prev) => ({ ...prev, [`plan_${key}_${i}`]: undefined }));
   };
 
-  // ── Step content map ─────────────────────────────────────
   const stepContent = [
     <StepBasicInfo key="basic" formData={formData} errors={errors} set={set} />,
     <StepBeds
@@ -267,19 +262,17 @@ const RoomTypeFormModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[rgba(5,5,15,0.85)] backdrop-blur-[10px]"
-      onClick={(e) => {
-        // if (e.target === e.currentTarget) onClose();
-      }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      onClick={(e) => {}}
     >
-      <div className="w-full max-w-2xl rounded-2xl border border-[rgba(176,38,255,0.2)] bg-gradient-to-br from-[#0f0a19] to-[#1a1425] shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="w-full max-w-2xl rounded-[8px] border border-white/[0.08] bg-[#120d1e]/95 backdrop-blur-md shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-7 pb-0 flex items-start justify-between shrink-0">
           <div>
-            <h2 className="text-lg font-black text-white tracking-tight">
+            <h2 className="text-base font-semibold text-zinc-200">
               {isEdit ? "Cập nhật loại phòng" : "Thêm loại phòng mới"}
             </h2>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-zinc-500 mt-1">
               {isEdit
                 ? `Chỉnh sửa ${initialData.typeName}`
                 : "Điền thông tin để tạo loại phòng mới"}
@@ -289,43 +282,41 @@ const RoomTypeFormModal = ({
         </div>
 
         {/* Step indicator */}
-        {/* Step indicator */}
         <div className="px-7 pt-5 pb-4 shrink-0">
           <div className="flex items-start justify-between mb-3">
-            {STEPS.map(({ label, sub }, i) => (
+            {STEPS.map(({ label }, i) => (
               <div
                 key={i}
                 className="flex flex-col items-center gap-1.5"
                 style={{ width: "20%" }}
               >
                 <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-black transition-all duration-300"
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300"
                   style={
                     i < step
                       ? {
-                          background: "#10b981",
+                          background: "#16a34a",
                           color: "#fff",
-                          boxShadow: "0 0 10px rgba(16,185,129,0.5)",
                         }
                       : i === step
                         ? {
-                            background: "#b026ff",
+                            background: "#7c3aed",
                             color: "#fff",
-                            boxShadow: "0 0 14px rgba(176,38,255,0.7)",
                           }
                         : {
-                            background: "rgba(255,255,255,0.06)",
-                            color: "#4b5563",
+                            background: "rgba(255,255,255,0.02)",
+                            border: "1px solid rgba(255,255,255,0.08)",
+                            color: "#71717a",
                           }
                   }
                 >
                   {i < step ? "✓" : i + 1}
                 </div>
                 <span
-                  className="text-[9px] font-black uppercase tracking-wider text-center"
+                  className="text-[10px] font-semibold uppercase tracking-wider text-center"
                   style={{
                     color:
-                      i === step ? "#dda6ff" : i < step ? "#10b981" : "#4b5563",
+                      i === step ? "#c084fc" : i < step ? "#4ade80" : "#71717a",
                   }}
                 >
                   {label}
@@ -343,8 +334,7 @@ const RoomTypeFormModal = ({
               className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
               style={{
                 width: `${(step / (STEPS.length - 1)) * 100}%`,
-                background: "linear-gradient(90deg, #10b981, #b026ff)",
-                boxShadow: "0 0 8px rgba(176,38,255,0.6)",
+                background: "#7c3aed",
               }}
             />
           </div>
@@ -360,14 +350,14 @@ const RoomTypeFormModal = ({
           {step === 0 ? (
             <button
               onClick={onClose}
-              className="flex-1 h-11 rounded-xl text-[11px] font-black uppercase tracking-wider text-gray-500 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer"
+              className="flex-1 h-9 rounded-[6px] text-xs font-medium text-zinc-400 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer active:scale-[0.98]"
             >
               Hủy
             </button>
           ) : (
             <button
               onClick={goBack}
-              className="flex-1 h-11 cursor-pointer rounded-xl text-[11px] font-black uppercase tracking-wider text-gray-500 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] transition-colors flex items-center justify-center gap-2"
+              className="flex-1 h-9 cursor-pointer rounded-[6px] text-xs font-medium text-zinc-400 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] transition-colors flex items-center justify-center gap-2 active:scale-[0.98]"
             >
               <ChevronLeft size={14} /> Quay lại
             </button>
@@ -376,38 +366,14 @@ const RoomTypeFormModal = ({
           {step < STEPS.length - 1 ? (
             <button
               onClick={goNext}
-              className="flex-[2] h-11 cursor-pointer rounded-xl text-[11px] font-black uppercase tracking-wider text-white flex items-center justify-center gap-2 transition-all"
-              style={{
-                background: "linear-gradient(135deg, #b026ff, #7c3aed)",
-                boxShadow: "0 4px 16px rgba(176,38,255,0.35)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow =
-                  "0 6px 20px rgba(176,38,255,0.5)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow =
-                  "0 4px 16px rgba(176,38,255,0.35)";
-              }}
+              className="flex-[2] h-9 cursor-pointer rounded-[6px] text-xs font-medium text-white flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 transition-all active:scale-[0.98]"
             >
               Tiếp theo <ChevronRight size={14} />
             </button>
           ) : (
             <button
               onClick={handleSubmit}
-              className="flex-[2] h-11 cursor-pointer rounded-xl text-[11px] font-black uppercase tracking-wider text-white flex items-center justify-center gap-2 transition-all"
-              style={{
-                background: "linear-gradient(135deg, #b026ff, #7c3aed)",
-                boxShadow: "0 4px 16px rgba(176,38,255,0.35)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow =
-                  "0 6px 20px rgba(176,38,255,0.5)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow =
-                  "0 4px 16px rgba(176,38,255,0.35)";
-              }}
+              className="flex-[2] h-9 cursor-pointer rounded-[6px] text-xs font-medium text-white flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 transition-all active:scale-[0.98]"
             >
               <Save size={14} />
               {isEdit ? "Cập nhật" : "Tạo loại phòng"}

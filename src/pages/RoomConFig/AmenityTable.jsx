@@ -1,5 +1,6 @@
 import EditButton from "@/components/common/EditButton";
 import RemoveButton from "@/components/common/RemoveButton";
+import { useSidebar } from "@/components/ui/sidebar";
 import { Sparkles } from "lucide-react";
 
 const CATEGORY_LABEL = {
@@ -21,70 +22,72 @@ const CATEGORY_COLOR = {
 };
 
 const AmenityTable = ({ amenities, onEdit, onDelete }) => {
+  const { open } = useSidebar();
+
   if (amenities.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-gray-700">
-        <Sparkles size={32} className="mb-3 opacity-30" />
-        <p className="text-xs font-black uppercase tracking-widest">
-          Chưa có tiện ích nào
-        </p>
+      <div className="flex flex-col items-center justify-center py-16 text-zinc-600 select-none">
+        <Sparkles size={28} className="mb-2 opacity-30" />
+        <p className="text-xs font-semibold">Chưa có tiện ích nào</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-white/[0.06] overflow-hidden">
-      {/* Header */}
-      <div className="grid grid-cols-[2rem_1fr_8rem_10rem] gap-4 px-5 py-3 border-b border-white/[0.06] bg-white/[0.02]">
-        <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-          #
-        </p>
-        <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-          Tên tiện ích
-        </p>
-        <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-          Danh mục
-        </p>
-        <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em] text-right">
-          Thao tác
-        </p>
-      </div>
-
-      {/* Rows */}
-      {amenities.map((amenity, i) => (
-        <div
-          key={amenity.roomAmenityId}
-          className={`grid grid-cols-[2rem_1fr_8rem_10rem] gap-4 px-5 py-3.5 items-center transition-colors hover:bg-white/[0.02] ${
-            i !== amenities.length - 1 ? "border-b border-white/[0.04]" : ""
-          }`}
-        >
-          <p className="text-[11px] text-gray-700 font-bold">{i + 1}</p>
-
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-[rgba(176,38,255,0.1)] border border-[rgba(176,38,255,0.2)] flex items-center justify-center shrink-0">
-              <Sparkles size={12} className="text-[#dda6ff]" />
-            </div>
-            <p className="text-[13px] font-semibold text-gray-200">
-              {amenity.roomAmenityName}
-            </p>
+    <div className="rounded-[8px] border border-white/[0.06] overflow-hidden select-none bg-[#120d1e]/45 backdrop-blur-sm">
+      <div className="overflow-x-auto custom-scrollbar">
+        <div className={`${open ? "md:min-w-2xl" : ""} lg:min-w-4xl`}>
+          {/* Header */}
+          <div className="grid grid-cols-[2rem_1fr_8rem_10rem] gap-4 px-5 py-3.5 border-b border-white/[0.06] bg-white/[0.01]">
+            {["#", "Tên tiện ích", "Danh mục", "Thao tác"].map((h, i) => (
+              <p
+                key={i}
+                className={`text-[10px] font-semibold text-zinc-500 tracking-wider uppercase ${
+                  i === 3 ? "text-right" : ""
+                }`}
+              >
+                {h}
+              </p>
+            ))}
           </div>
 
-          <div>
-            <span
-              className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider border ${
-                CATEGORY_COLOR[amenity.category] ?? CATEGORY_COLOR.other
+          {/* Rows */}
+          {amenities.map((amenity, i) => (
+            <div
+              key={amenity.roomAmenityId}
+              className={`grid grid-cols-[2rem_1fr_8rem_10rem] gap-4 px-5 py-3.5 items-center transition-colors hover:bg-white/[0.02] cursor-pointer ${
+                i !== amenities.length - 1 ? "border-b border-white/[0.04]" : ""
               }`}
             >
-              {CATEGORY_LABEL[amenity.category] ?? amenity.category}
-            </span>
-          </div>
+              <p className="text-xs text-zinc-500 font-mono">{i + 1}</p>
 
-          <div className="flex items-center justify-end gap-1.5">
-            <EditButton onEdit={() => onEdit(amenity)} />
-            <RemoveButton onRemove={() => onDelete(amenity)} />
-          </div>
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-[4px] bg-white/[0.04] border border-white/[0.08] flex items-center justify-center shrink-0">
+                  <Sparkles size={12} className="text-violet-400" />
+                </div>
+                <p className="text-sm font-medium text-zinc-200">
+                  {amenity.roomAmenityName}
+                </p>
+              </div>
+
+              <div>
+                <span
+                  className={`px-2 py-0.5 rounded-[4px] text-[10px] font-semibold uppercase tracking-wider border ${
+                    CATEGORY_COLOR[amenity.category] ?? CATEGORY_COLOR.other
+                  }`}
+                >
+                  {CATEGORY_LABEL[amenity.category] ?? amenity.category}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-end gap-1.5">
+                <EditButton onEdit={() => onEdit(amenity)} />
+                <RemoveButton onRemove={() => onDelete(amenity)} />
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 };

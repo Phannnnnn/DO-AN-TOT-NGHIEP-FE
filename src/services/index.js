@@ -6,7 +6,10 @@ export { bookingService } from "./booking/bookingService";
 export { service_roomService } from "./service/service_roomService";
 export { service_room_typeService } from "./ServiceType/service_room_typeService";
 export { customerService } from "./customer/customerService";
+export { userService } from "./user/userService";
 export { paymentService } from "./payment/paymentService";
 export { cloudinaryService } from "./cloudinary/cloudinaryService";
+export { roomHoldService } from "./room-hold/roomHoldService";
+export { booking_Service_Service } from "./booking/booking_Service_Service";
 
 export { default as apiClient } from "../api/axios.custom";

@@ -1,17 +1,18 @@
 import { useEffect, useState, useMemo } from "react";
-import { Loader2 } from "lucide-react";
-import { toast } from "react-toastify";
+import LoadingSection from "@/components/common/LoadingSection";
+import { useNotification } from "@/context/ContextProvider";
 
 import RoomTypeCard from "./RoomTypeCard";
 import RoomTypeDetailModal from "./RoomTypeDetailModal";
 import RoomTypeFormModal from "./RoomTypeFormModal";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
-import RoomMangagementHeader from "../RoomManagement/RoomMangagementHeader";
 import { roomTypeService } from "@/services";
 import { roomAmenityService } from "@/services/roomAmenity/roomAmenityService";
 import { roomBedService } from "@/services/roombeds/roomBedService";
+import RoomMangagementHeader from "../RoomManagement/RoomMangagementHeader";
 
 const RoomTypeManagementPage = () => {
+  const toast = useNotification();
   const [roomTypes, setRoomTypes] = useState([]);
   const [amenities, setAmenities] = useState([]);
   const [bedTypes, setBedTypes] = useState([]);
@@ -62,13 +63,14 @@ const RoomTypeManagementPage = () => {
 
       if (selectedRoomType?.roomTypeId) {
         res = await roomTypeService.update(selectedRoomType.roomTypeId, data);
+        console.log(res);
         if (res.success) {
           setRoomTypes((prev) =>
             prev.map((roomType) =>
               roomType.roomTypeId === res.data.roomTypeId ? res.data : roomType,
             ),
           );
-          toast.success("Cập nhật thành công.");
+          toast.success("Thành công", "Cập nhật thành công.");
         }
       } else {
         res = await roomTypeService.create(data);
@@ -76,13 +78,13 @@ const RoomTypeManagementPage = () => {
           setRoomTypes((prev) => {
             return [...prev, res.data];
           });
-          toast.success("Thêm thành công.");
+          toast.success("Thành công", "Thêm thành công.");
         }
       }
       setIsFormOpen(false);
       setSelectedRoomType(null);
     } catch (error) {
-      toast.error(error.message);
+      toast.error("Lỗi", error.message);
     }
   };
 
@@ -103,10 +105,10 @@ const RoomTypeManagementPage = () => {
             (roomType) => roomType.roomTypeId !== res.data.roomTypeId,
           ),
         );
-        toast.success("Xóa thành công.");
+        toast.success("Thành công", "Xóa thành công.");
       }
     } catch (e) {
-      toast.error(e.message);
+      toast.error("Lỗi", e.message);
     } finally {
       setRoomTypeToDelete(null);
     }
@@ -137,7 +139,7 @@ const RoomTypeManagementPage = () => {
 
   // ── Render ────────────────────────────────────────────────
   return (
-    <div className="p-8 max-w-[1600px] mx-auto min-h-screen bg-[#0f0a19]">
+    <div className="p-8">
       <RoomMangagementHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -150,12 +152,10 @@ const RoomTypeManagementPage = () => {
       />
 
       {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="animate-spin text-[#b026ff]" size={32} />
-        </div>
+        <LoadingSection />
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24">
-          <p className="text-xs font-black text-gray-700 uppercase tracking-widest">
+          <p className="text-xs font-medium text-zinc-500">
             Không tìm thấy loại phòng nào
           </p>
         </div>

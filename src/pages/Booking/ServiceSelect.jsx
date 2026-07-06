@@ -40,7 +40,7 @@ const ServiceSelect = ({ services, value, onChange, error }) => {
         ref={btnRef}
         type="button"
         onClick={handleToggle}
-        className={`w-full h-10 px-3.5 rounded-lg text-[12px] font-bold flex items-center justify-between gap-2 transition-all border ${
+        className={`w-full h-10 px-3.5 rounded-lg text-xs font-bold flex items-center justify-between gap-2 transition-all border ${
           error
             ? "border-red-500/50"
             : open
@@ -54,7 +54,7 @@ const ServiceSelect = ({ services, value, onChange, error }) => {
             <span className="text-gray-200 truncate">
               {selectedService.serviceName}
             </span>
-            <span className="text-gray-600 text-[11px] truncate">
+            <span className="text-gray-600 text-xs truncate">
               {formatVND(parseFloat(selectedService.price))}/
               {selectedService.unit}
             </span>
@@ -68,7 +68,7 @@ const ServiceSelect = ({ services, value, onChange, error }) => {
         />
       </button>
 
-      {error && <span className="text-[10px] text-red-400">{error}</span>}
+      {error && <span className="text-xs text-red-400">{error}</span>}
 
       {open &&
         rect &&
@@ -91,7 +91,7 @@ const ServiceSelect = ({ services, value, onChange, error }) => {
             >
               {Object.entries(grouped).map(([type, svcs]) => (
                 <div key={type}>
-                  <div className="px-3.5 py-1.5 text-[10px] font-black text-gray-500 uppercase tracking-wider border-b border-white/[0.06]">
+                  <div className="px-3.5 py-1.5 text-xs font-bold text-gray-500 border-b border-white/[0.06]">
                     {type}
                   </div>
                   {svcs.map((s) => {
@@ -115,12 +115,12 @@ const ServiceSelect = ({ services, value, onChange, error }) => {
                             <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-[#b026ff]" />
                           )}
                           <span
-                            className={`text-[12px] font-bold ${isSelected ? "text-[#dda6ff]" : "text-gray-300"}`}
+                            className={`text-xs font-bold ${isSelected ? "text-[#dda6ff]" : "text-gray-300"}`}
                           >
                             {s.serviceName}
                           </span>
                         </span>
-                        <span className="text-[10px] text-gray-600 shrink-0">
+                        <span className="text-xs text-gray-600 shrink-0">
                           {formatVND(parseFloat(s.price))}/{s.unit}
                         </span>
                       </button>

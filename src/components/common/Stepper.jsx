@@ -1,7 +1,7 @@
 import { Minus, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 
-const Stepper = ({ label, value, onChange, min = 0 }) => {
+const Stepper = ({ label, value, onChange, min = 0, error }) => {
   const [inputVal, setInputVal] = useState(String(value));
 
   // Sync khi value thay đổi từ bên ngoài
@@ -55,9 +55,7 @@ const Stepper = ({ label, value, onChange, min = 0 }) => {
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-          {label}
-        </label>
+        <label className="text-xs font-bold text-gray-600">{label}</label>
       )}
       <div className="flex items-center h-11 rounded-lg border border-[rgba(176,38,255,0.15)] bg-white/[0.04]">
         {/* Decrement */}
@@ -66,11 +64,11 @@ const Stepper = ({ label, value, onChange, min = 0 }) => {
           onClick={decrement}
           disabled={value <= min}
           className={`w-11 h-full flex items-center justify-center border-r border-[rgba(176,38,255,0.1)] transition-colors shrink-0 rounded-l-lg
-            ${
-              value <= min
-                ? "text-white/10 cursor-not-allowed"
-                : "text-[#c77dff] hover:bg-[rgba(176,38,255,0.1)] cursor-pointer"
-            }`}
+ ${
+   value <= min
+     ? "text-white/10 cursor-not-allowed"
+     : "text-[#c77dff] hover:bg-[rgba(176,38,255,0.1)] cursor-pointer"
+ }`}
         >
           <Minus size={13} />
         </button>
@@ -82,13 +80,7 @@ const Stepper = ({ label, value, onChange, min = 0 }) => {
           onChange={handleInputChange} // Đã thay đổi ở đây
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className="
-            flex-1 h-full w-12 text-center text-[15px] font-black text-gray-200
-            bg-transparent outline-none border-none
-            [appearance:textfield]
-            [&::-webkit-outer-spin-button]:appearance-none
-            [&::-webkit-inner-spin-button]:appearance-none
-          "
+          className="flex-1 h-full w-12 text-center text-base font-bold bg-transparent [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
 
         {/* Increment */}
@@ -100,6 +92,10 @@ const Stepper = ({ label, value, onChange, min = 0 }) => {
           <Plus size={13} />
         </button>
       </div>
+
+      {error && (
+        <span className="text-xs text-red-400 mt-1 block">{error}</span>
+      )}
     </div>
   );
 };

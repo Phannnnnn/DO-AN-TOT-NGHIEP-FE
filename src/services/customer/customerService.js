@@ -6,8 +6,8 @@ export const customerService = {
     return apiClient.post(API_ENDPOINTS.CUSTOMER.CUSTOMERS, data);
   },
 
-  customers: () => {
-    return apiClient.get(API_ENDPOINTS.CUSTOMER.CUSTOMERS);
+  customers: (params) => {
+    return apiClient.get(API_ENDPOINTS.CUSTOMER.CUSTOMERS, { params });
   },
 
   update: (customerId, data) => {

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
-import { MapPin, Loader2 } from "lucide-react";
-import { toast } from "react-toastify";
+import { MapPin } from "lucide-react";
+import LoadingSection from "@/components/common/LoadingSection";
+import { useNotification } from "@/context/ContextProvider";
 
 import RoomFormModal from "./RoomFormModal";
 import RoomDetailModal from "./RoomDetailModal";
@@ -12,39 +13,43 @@ import RoomMangagementHeader from "./RoomMangagementHeader";
 const STATUS_MAP = {
   available: {
     label: "Trống",
-    accent: "linear-gradient(90deg, #10b981, #059669)",
-    glow: "#10b981",
-    bg: "rgba(16,185,129,0.12)",
+    color: "#10b981",
+    bg: "rgba(16, 185, 129, 0.08)",
     text: "#34d399",
-    border: "rgba(16,185,129,0.3)",
+    border: "rgba(16, 185, 129, 0.16)",
   },
   occupied: {
     label: "Đang ở",
-    accent: "linear-gradient(90deg, #3b82f6, #2563eb)",
-    glow: "#3b82f6",
-    bg: "rgba(59,130,246,0.12)",
+    color: "#3b82f6",
+    bg: "rgba(59, 130, 246, 0.08)",
     text: "#60a5fa",
-    border: "rgba(59,130,246,0.3)",
+    border: "rgba(59, 130, 246, 0.16)",
   },
   cleaning: {
-    label: "Dọn dẹp",
-    accent: "linear-gradient(90deg, #f59e0b, #d97706)",
-    glow: "#f59e0b",
-    bg: "rgba(245,158,11,0.12)",
+    label: "Cần dọn dẹp",
+    color: "#f59e0b",
+    bg: "rgba(245, 158, 11, 0.08)",
     text: "#fbbf24",
-    border: "rgba(245,158,11,0.3)",
+    border: "rgba(245, 158, 11, 0.16)",
   },
   maintenance: {
     label: "Bảo trì",
-    accent: "linear-gradient(90deg, #6b7280, #4b5563)",
-    glow: "#6b7280",
-    bg: "rgba(107,114,128,0.12)",
-    text: "#9ca3af",
-    border: "rgba(107,114,128,0.3)",
+    color: "#7c3aed",
+    bg: "rgba(124, 58, 237, 0.08)",
+    text: "#a78bfa",
+    border: "rgba(124, 58, 237, 0.16)",
+  },
+  progress: {
+    label: "Đang dọn",
+    color: "#f43f5e",
+    bg: "rgba(244, 63, 94, 0.08)",
+    text: "#fb7185",
+    border: "rgba(244, 63, 94, 0.16)",
   },
 };
 
 const RoomManagementPage = () => {
+  const toast = useNotification();
   const [rooms, setRooms] = useState([]);
   const [roomTypes, setRoomTypes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -88,28 +93,28 @@ const RoomManagementPage = () => {
       if (selectedRoom?.roomId) {
         res = await roomService.update(selectedRoom.roomId, data);
         if (res.success) {
-          toast.success("Cập nhật thành công.");
+          toast.success("Thành công", "Cập nhật thành công.");
           setRooms((prev) =>
             prev.map((r) => (r.roomId === res.data.roomId ? res.data : r)),
           );
         } else {
-          toast.error(extractError(res));
+          toast.error("Lỗi", extractError(res));
           return;
         }
       } else {
         res = await roomService.create(data);
         if (res.success) {
-          toast.success("Tạo phòng thành công.");
+          toast.success("Thành công", "Tạo phòng thành công.");
           setRooms((prev) => [...prev, res.data]);
         } else {
-          toast.error(extractError(res));
+          toast.error("Lỗi", extractError(res));
           return;
         }
       }
       setIsFormOpen(false);
       setSelectedRoom(null);
     } catch (error) {
-      toast.error(extractError(error));
+      toast.error("Lỗi", extractError(error));
     }
   };
 
@@ -122,10 +127,10 @@ const RoomManagementPage = () => {
     if (!roomToDelete) return;
     try {
       await roomService.remove(roomToDelete.roomId);
-      toast.success("Xóa thành công.");
+      toast.success("Thành công", "Xóa thành công.");
       setRooms((prev) => prev.filter((r) => r.roomId !== roomToDelete.roomId));
     } catch (e) {
-      toast.error(extractError(e));
+      toast.error("Lỗi", extractError(e));
     } finally {
       setRoomToDelete(null);
     }
@@ -167,7 +172,7 @@ const RoomManagementPage = () => {
 
   // ── Render ────────────────────────────────────────────────
   return (
-    <div className="p-8 max-w-[1600px] mx-auto min-h-screen bg-[#0f0a19]">
+    <div className="p-8">
       <RoomMangagementHeader
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -180,12 +185,10 @@ const RoomManagementPage = () => {
       />
 
       {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="animate-spin text-[#b026ff]" size={32} />
-        </div>
+        <LoadingSection />
       ) : Object.keys(groupedRooms).length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24">
-          <p className="text-xs font-black text-gray-700 uppercase tracking-widest">
+          <p className="text-xs font-medium text-zinc-500">
             Không tìm thấy phòng nào
           </p>
         </div>
@@ -196,12 +199,12 @@ const RoomManagementPage = () => {
             .map((floor) => (
               <div key={floor}>
                 <div className="flex items-center gap-3 mb-4">
-                  <MapPin size={13} className="text-[#b026ff]" />
-                  <span className="text-[10px] font-black text-gray-600 uppercase tracking-[0.15em]">
+                  <MapPin size={13} className="text-violet-400" />
+                  <span className="text-xs font-semibold text-zinc-300 font-mono">
                     Tầng {floor}
                   </span>
-                  <div className="flex-1 h-px bg-[rgba(176,38,255,0.1)]" />
-                  <span className="text-[10px] font-bold text-gray-700">
+                  <div className="flex-1 h-px bg-white/[0.06]" />
+                  <span className="text-xs font-medium text-zinc-500 font-mono">
                     {groupedRooms[floor].length} phòng
                   </span>
                 </div>

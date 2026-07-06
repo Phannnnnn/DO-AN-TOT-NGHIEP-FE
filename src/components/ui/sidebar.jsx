@@ -20,7 +20,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { TextAlignJustify } from "lucide-react";
+import { TextAlignJustify, TextAlignStart } from "lucide-react";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -242,7 +242,7 @@ function SidebarTrigger({ className, onClick, ...props }) {
       }}
       {...props}
     >
-      <TextAlignJustify strokeWidth={3} absoluteStrokeWidth />
+      <TextAlignStart strokeWidth={3} absoluteStrokeWidth />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

@@ -13,13 +13,13 @@ const SearchPrimary = ({
         placeholder={placeholder}
         value={searchQuery || ""}
         onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full h-[42px] pl-[40px] pr-[14px] bg-white/[0.04] border border-violet-500/15 rounded-[0.625rem] text-gray-200 text-[13px] font-bold outline-none box-border focus:border-violet-500/40 transition-colors"
+        className="h-[42px] pl-[40px] bg-[#0a0616]/75 border border-[#b026ff]/25 rounded-full text-gray-200 text-xs md:text-sm font-bold outline-none box-border transition-all"
         onFocus={(e) => {
-          e.target.style.border = "1px solid rgba(139,92,246,0.5)";
-          e.target.style.boxShadow = "0 0 0 3px rgba(139,92,246,0.1)";
+          e.target.style.borderColor = "#00f0ff";
+          e.target.style.boxShadow = "0 0 15px rgba(0, 240, 255, 0.45)";
         }}
         onBlur={(e) => {
-          e.target.style.border = "1px solid rgba(139,92,246,0.15)";
+          e.target.style.borderColor = "rgba(176, 38, 255, 0.25)";
           e.target.style.boxShadow = "none";
         }}
       />

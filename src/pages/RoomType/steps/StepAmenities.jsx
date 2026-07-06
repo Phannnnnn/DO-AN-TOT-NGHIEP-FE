@@ -1,3 +1,5 @@
+import BadgeButton from "@/components/common/BadgeButton";
+
 const CATEGORY_LABEL = {
   bathroom: "Phòng tắm",
   bedroom: "Phòng ngủ",
@@ -17,7 +19,7 @@ const StepAmenities = ({ amenities, selectedIds, onToggle }) => {
 
   if (amenities.length === 0) {
     return (
-      <p className="text-[11px] text-gray-700 text-center py-4">
+      <p className="text-xs text-zinc-500 text-center py-4">
         Không có tiện nghi nào.
       </p>
     );
@@ -27,24 +29,19 @@ const StepAmenities = ({ amenities, selectedIds, onToggle }) => {
     <div className="flex flex-col gap-4">
       {Object.entries(grouped).map(([cat, items]) => (
         <div key={cat}>
-          <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em] mb-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 mb-2">
             {CATEGORY_LABEL[cat] ?? cat}
           </p>
           <div className="flex flex-wrap gap-1.5">
             {items.map((a) => {
               const active = selectedIds.includes(a.roomAmenityId);
               return (
-                <button
+                <BadgeButton
                   key={a.roomAmenityId}
                   onClick={() => onToggle(a.roomAmenityId)}
-                  className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold cursor-pointer transition-all border ${
-                    active
-                      ? "bg-[rgba(176,38,255,0.15)] border-[rgba(176,38,255,0.4)] text-[#dda6ff]"
-                      : "bg-white/[0.03] border-white/[0.07] text-gray-600 hover:border-white/[0.15] hover:text-gray-400"
-                  }`}
-                >
-                  {a.roomAmenityName}
-                </button>
+                  label={a.roomAmenityName}
+                  active={active}
+                />
               );
             })}
           </div>
@@ -52,7 +49,7 @@ const StepAmenities = ({ amenities, selectedIds, onToggle }) => {
       ))}
 
       {selectedIds.length > 0 && (
-        <p className="text-[10px] text-[#b026ff] font-bold">
+        <p className="text-xs text-violet-400 font-medium font-mono">
           Đã chọn {selectedIds.length} tiện nghi
         </p>
       )}

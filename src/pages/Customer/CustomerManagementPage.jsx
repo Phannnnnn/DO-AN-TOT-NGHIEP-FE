@@ -1,14 +1,18 @@
 import { useEffect, useState, useMemo } from "react";
-import { Loader2 } from "lucide-react";
-import { toast } from "react-toastify";
+import LoadingSection from "@/components/common/LoadingSection";
+import { useNotification } from "@/context/ContextProvider";
 import CustomerFormModal from "./CustomerFormModal";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import SearchPrimary from "@/components/common/SearchPrimary";
 import AddButton from "@/components/common/AddButton";
 import { customerService } from "@/services";
 import CustomerTable from "./CustomerTable";
+import Pagination from "@/components/common/Pagination";
+
+const LIMIT_OPTIONS = [5, 10, 15, 20, 30, 40, 50];
 
 const CustomerManagementPage = () => {
+  const toast = useNotification();
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,13 +22,24 @@ const CustomerManagementPage = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
+  const [page, setPage] = useState(1);
+  const [pageLimit, setPageLimit] = useState(LIMIT_OPTIONS[0]);
+  const [totalPage, setTotalPage] = useState(0);
+
   const fetchCustomers = async () => {
     setLoading(true);
     try {
-      const res = await customerService.customers();
-      if (res.success) setCustomers(res.data || []);
+      const res = await customerService.customers({
+        page: page,
+        limit: pageLimit,
+      });
+      console.log(res);
+      if (res.success) {
+        setCustomers(res.data.customers || []);
+        setTotalPage(res.data.totalPage);
+      }
     } catch (e) {
-      toast.error("Không thể tải danh sách khách hàng");
+      toast.error("Lỗi", "Không thể tải danh sách khách hàng");
     } finally {
       setLoading(false);
     }
@@ -32,9 +47,9 @@ const CustomerManagementPage = () => {
 
   useEffect(() => {
     fetchCustomers();
-  }, []);
+  }, [page, pageLimit, totalPage]);
 
-  // Filter (client‑side) – tìm theo tên, SĐT, email, CCCD
+  // Filter (client‑side) – tìm theo tên, SĐT, email
   const filtered = useMemo(() => {
     const q = searchQuery.toLowerCase();
     return customers.filter(
@@ -42,8 +57,7 @@ const CustomerManagementPage = () => {
         !q ||
         c.fullName?.toLowerCase().includes(q) ||
         c.phone?.includes(q) ||
-        c.email?.toLowerCase().includes(q) ||
-        c.idNumber?.includes(q),
+        c.email?.toLowerCase().includes(q),
     );
   }, [customers, searchQuery]);
 
@@ -59,25 +73,25 @@ const CustomerManagementPage = () => {
               c.customerId === selectedCustomer.customerId ? res.data : c,
             ),
           );
-          toast.success("Cập nhật thành công.");
+          toast.success("Thành công", "Cập nhật thành công.");
           setIsFormOpen(false);
           setSelectedCustomer(null);
         } else {
-          toast.error(extractError(res));
+          toast.error("Lỗi", extractError(res));
         }
       } else {
         res = await customerService.create(data);
         if (res.success) {
           setCustomers((prev) => [...prev, res.data]);
-          toast.success("Thêm thành công.");
+          toast.success("Thành công", "Thêm thành công.");
           setIsFormOpen(false);
           setSelectedCustomer(null);
         } else {
-          toast.error(extractError(res));
+          toast.error("Lỗi", extractError(res));
         }
       }
     } catch (error) {
-      toast.error(extractError(error));
+      toast.error("Lỗi", extractError(error));
     }
   };
 
@@ -90,12 +104,12 @@ const CustomerManagementPage = () => {
         setCustomers((prev) =>
           prev.filter((c) => c.customerId !== deleteTarget.customerId),
         );
-        toast.success("Xóa khách hàng thành công.");
+        toast.success("Thành công", "Xóa khách hàng thành công.");
       } else {
-        toast.error(extractError(res));
+        toast.error("Lỗi", extractError(res));
       }
     } catch (e) {
-      toast.error(extractError(e));
+      toast.error("Lỗi", extractError(e));
     } finally {
       setDeleteTarget(null);
       setConfirmOpen(false);
@@ -108,31 +122,29 @@ const CustomerManagementPage = () => {
       : (err?.message ?? "Có lỗi xảy ra");
 
   return (
-    <div className="p-8 max-w-[1600px] mx-auto min-h-screen bg-[#0f0a19]">
+    <div className="p-4 sm:p-8">
       {/* Header */}
-      <div className="flex flex-wrap justify-between items-center gap-4 sticky top-0 z-30 bg-[#0d0d1a]/85 backdrop-blur-[12px] px-5 py-4 rounded-[0.875rem] border border-violet-500/12 shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
-        <div className="flex">
-          <SearchPrimary
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            placeholder="Tìm theo tên, SĐT, email, CCCD..."
+      <div className="flex flex-col md:flex-row md:justify-between gap-4 sticky top-0 z-30 bg-[#120d1e]/90 backdrop-blur-md px-4 py-3 rounded-[8px] border border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.65)]">
+        <SearchPrimary
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          placeholder="Tìm theo tên, SĐT, email..."
+        />
+        <div className="flex justify-end">
+          <AddButton
+            onAddItem={() => {
+              setSelectedCustomer(null);
+              setIsFormOpen(true);
+            }}
+            addLabel="Thêm người dùng"
           />
         </div>
-        <AddButton
-          onAddItem={() => {
-            setSelectedCustomer(null);
-            setIsFormOpen(true);
-          }}
-          addLabel="Thêm người dùng"
-        />
       </div>
 
       {/* Content */}
       <div className="mt-8">
         {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="animate-spin text-[#b026ff]" size={32} />
-          </div>
+          <LoadingSection />
         ) : (
           <CustomerTable
             customers={filtered}
@@ -157,6 +169,19 @@ const CustomerManagementPage = () => {
           setSelectedCustomer(null);
         }}
         onSubmit={handleSubmit}
+      />
+
+      <Pagination
+        page={page}
+        pageLimit={pageLimit}
+        totalPage={totalPage}
+        limitOptions={LIMIT_OPTIONS}
+        onChangePage={(page) => {
+          setPage(page);
+        }}
+        onChangeLimit={(limit) => {
+          setPageLimit(limit);
+        }}
       />
 
       {/* Delete confirm */}

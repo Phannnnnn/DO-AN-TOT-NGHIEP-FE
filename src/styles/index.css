@@ -1,19 +1,66 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@theme {
+  --color-background: #05020c;
+  --color-foreground: #ffffff;
+  --color-primary: #7c3aed;
+  --color-secondary: #00f0ff;
+  --color-muted: #cbd5e1;
+  --color-border: rgba(176, 38, 255, 0.4);
+
+  --shadow-neon: 0 0 20px rgba(176, 38, 255, 0.5);
+  --shadow-neon-cyan: 0 0 20px rgba(0, 240, 255, 0.5);
+}
+
+* {
+  scrollbar-width: none;
+}
+
 body {
-  font-family: "Inter", sans-serif;
+  font-family: "DM Sans", sans-serif;
   font-size: 14px;
-  color: var(--white);
+  color: #f8fafc;
   line-height: 1.6;
-  background: #f6f6f8;
-  font-weight: 400;
+  background-color: #05020c;
+  font-weight: 500;
   margin: 0;
   padding: 0;
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 #root {
   height: 100%;
+}
+
+/* Custom scrollbar for tables and charts to indicate scrollability */
+.custom-scrollbar {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(176, 38, 255, 0.3) rgba(255, 255, 255, 0.02) !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+  display: block !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(176, 38, 255, 0.3);
+  border-radius: 3px;
+  border: 1px solid rgba(176, 38, 255, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(176, 38, 255, 0.6);
+  box-shadow: 0 0 8px rgba(176, 38, 255, 0.5);
 }

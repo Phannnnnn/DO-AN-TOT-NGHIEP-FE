@@ -3,22 +3,22 @@ import { Info, Edit, Trash2 } from "lucide-react";
 const ServiceTypeTable = ({ types, onEdit, onDelete }) => {
   if (types.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-gray-700">
+      <div className="flex flex-col items-center justify-center py-16 text-zinc-500">
         <Info size={32} className="mb-3 opacity-30" />
-        <p className="text-xs font-black uppercase tracking-widest">
-          Không tìm thấy loại dịch vụ nào
-        </p>
+        <p className="text-xs font-medium">Không tìm thấy loại dịch vụ nào</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-white/[0.06] overflow-hidden">
-      <div className="grid grid-cols-[4rem_1fr_1fr_7rem] gap-4 px-5 py-3.5 items-center border-b border-white/[0.06] bg-white/[0.02]">
+    <div className="rounded-[8px] border border-white/[0.06] overflow-hidden bg-[#120d1e]/40">
+      <div className="overflow-x-auto custom-scrollbar">
+        <div className="min-w-[600px]">
+          <div className="grid grid-cols-[4rem_1fr_1fr_7rem] gap-4 px-5 py-3 items-center border-b border-white/[0.06] bg-white/[0.01]">
         {["ID", "Tên loại", "Mô tả", ""].map((h, i) => (
           <p
             key={i}
-            className={`text-[9px] font-black text-gray-600 uppercase tracking-[0.12em] ${i === 3 ? "text-right" : ""}`}
+            className={`text-[10px] uppercase tracking-wider font-medium text-zinc-500 ${i === 3 ? "text-right" : ""}`}
           >
             {h}
           </p>
@@ -28,21 +28,21 @@ const ServiceTypeTable = ({ types, onEdit, onDelete }) => {
       {types.map((type, i) => (
         <div
           key={type.serviceTypeId}
-          className={`grid grid-cols-[4rem_1fr_1fr_7rem] gap-4 px-5 py-3.5 items-center transition-colors hover:bg-white/[0.02] ${
+          className={`grid grid-cols-[4rem_1fr_1fr_7rem] gap-4 px-5 py-3 items-center transition-colors hover:bg-white/[0.02] ${
             i !== types.length - 1 ? "border-b border-white/[0.04]" : ""
           }`}
         >
-          <p className="text-[11px] text-gray-700 font-bold">
+          <p className="text-xs text-zinc-500 font-mono">
             #{type.serviceTypeId}
           </p>
 
           <div>
-            <p className="text-[13px] font-semibold text-gray-200 truncate">
+            <p className="text-sm font-medium text-zinc-200 truncate">
               {type.typeName}
             </p>
           </div>
 
-          <p className="text-[11px] text-gray-400 truncate">
+          <p className="text-xs text-zinc-500 truncate">
             {type.description || "Chưa có"}
           </p>
 
@@ -52,19 +52,21 @@ const ServiceTypeTable = ({ types, onEdit, onDelete }) => {
           >
             <button
               onClick={() => onEdit(type)}
-              className="p-1.5 rounded-lg border border-[rgba(176,38,255,0.3)] bg-[rgba(176,38,255,0.1)] text-[#c77dff] hover:bg-[#b026ff] hover:text-white hover:border-[#b026ff] transition-all cursor-pointer"
+              className="p-1.5 rounded-[6px] border border-violet-500/20 bg-violet-500/10 text-violet-300 hover:bg-violet-500/20 hover:text-violet-200 transition-all cursor-pointer active:scale-[0.95]"
             >
               <Edit size={13} />
             </button>
             <button
               onClick={() => onDelete(type)}
-              className="p-1.5 rounded-lg border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+              className="p-1.5 rounded-[6px] border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all cursor-pointer active:scale-[0.95]"
             >
               <Trash2 size={13} />
             </button>
           </div>
         </div>
       ))}
+        </div>
+      </div>
     </div>
   );
 };

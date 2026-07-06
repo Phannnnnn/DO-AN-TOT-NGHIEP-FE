@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { Save } from "lucide-react";
 import CancelButton from "@/components/common/CancelButton";
+import { useNoScroll } from "@/hooks/useNoScroll";
+import { DateInput } from "@/components/common/DateRangePicker";
 
 const CustomerFormModal = ({ isOpen, initialData, onClose, onSubmit }) => {
+  useNoScroll(isOpen);
   const [formData, setFormData] = useState({
     fullName: "",
-    idNumber: "",
     phone: "",
     email: "",
     address: "",
@@ -20,7 +22,6 @@ const CustomerFormModal = ({ isOpen, initialData, onClose, onSubmit }) => {
     if (initialData) {
       setFormData({
         fullName: initialData.fullName || "",
-        idNumber: initialData.idNumber || "",
         phone: initialData.phone || "",
         email: initialData.email || "",
         address: initialData.address || "",
@@ -32,7 +33,6 @@ const CustomerFormModal = ({ isOpen, initialData, onClose, onSubmit }) => {
     } else {
       setFormData({
         fullName: "",
-        idNumber: "",
         phone: "",
         email: "",
         address: "",
@@ -53,15 +53,11 @@ const CustomerFormModal = ({ isOpen, initialData, onClose, onSubmit }) => {
   const validate = () => {
     const errs = {};
     if (!formData.fullName.trim()) errs.fullName = "Họ tên không được để trống";
-    if (!formData.idNumber.trim()) errs.idNumber = "Số định danh là bắt buộc";
-    if (
-      formData.idNumber &&
-      (formData.idNumber.length < 9 || formData.idNumber.length > 20)
-    )
-      errs.idNumber = "Số định danh từ 9 đến 20 ký tự";
-    if (!formData.phone.trim()) errs.phone = "Số điện thoại là bắt buộc";
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email))
+    if (!formData.email.trim()) {
+      errs.email = "Email không được để trống";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       errs.email = "Email không hợp lệ";
+    }
     return errs;
   };
 
@@ -72,12 +68,10 @@ const CustomerFormModal = ({ isOpen, initialData, onClose, onSubmit }) => {
       return;
     }
 
-    // Chỉ gửi các trường bắt buộc, bỏ email/address nếu rỗng
     const payload = {
       fullName: formData.fullName.trim(),
-      idNumber: formData.idNumber.trim(),
-      phone: formData.phone.trim(),
-      email: formData.email.trim() || undefined,
+      phone: formData.phone.trim() || undefined,
+      email: formData.email.trim(),
       address: formData.address.trim() || undefined,
       nationality: formData.nationality.trim(),
       dateOfBirth: formData.dateOfBirth || undefined,
@@ -89,15 +83,15 @@ const CustomerFormModal = ({ isOpen, initialData, onClose, onSubmit }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[rgba(5,5,15,0.85)] backdrop-blur-[10px]">
-      <div className="w-full max-w-2xl rounded-2xl border border-[rgba(176,38,255,0.2)] shadow-2xl bg-gradient-to-br from-[#0f0a19] to-[#1a1425] flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#050308]/80 backdrop-blur-sm">
+      <div className="w-full max-w-2xl rounded-[8px] border border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.65)] bg-[#120d1e]/95 backdrop-blur-md flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="p-6 pb-4 flex items-start justify-between shrink-0 border-b border-white/[0.05]">
+        <div className="p-5 pb-4 flex items-start justify-between shrink-0 border-b border-white/[0.05]">
           <div>
-            <h2 className="text-lg font-black text-white tracking-tight">
-              {initialData ? "Sửa khách hàng" : "Thêm khách hàng"}
+            <h2 className="text-base font-medium text-zinc-100">
+              {initialData ? "Cập nhật" : "Thêm mới"}
             </h2>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-zinc-500 mt-1">
               {initialData
                 ? "Cập nhật thông tin khách hàng"
                 : "Tạo khách hàng mới"}
@@ -107,97 +101,74 @@ const CustomerFormModal = ({ isOpen, initialData, onClose, onSubmit }) => {
         </div>
 
         {/* Form body */}
-        <div className="overflow-y-auto flex-1 p-6 flex flex-col gap-4">
+        <div className="overflow-y-auto flex-1 p-5 flex flex-col gap-4">
           {/* Họ tên */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-              Họ tên *
+            <label className="text-[11px] uppercase tracking-wider font-medium text-zinc-400">
+              Họ tên <span className="text-red-400">*</span>
             </label>
             <input
               type="text"
               value={formData.fullName}
               onChange={(e) => handleChange("fullName", e.target.value)}
               placeholder="Nguyễn Văn A"
-              className={`h-10 px-3 rounded-lg bg-white/[0.04] text-[12px] font-semibold text-gray-200 outline-none transition-all border w-full ${
+              className={`h-9 px-3 rounded-[6px] bg-[#161224]/50 text-xs text-zinc-100 placeholder:text-zinc-600 outline-none transition-all border w-full ${
                 errors.fullName
-                  ? "border-red-500/50"
-                  : "border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)]"
+                  ? "border-red-500/40 focus:border-red-500/60 focus:ring-1 focus:ring-red-500/60"
+                  : "border-white/[0.08] focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50"
               }`}
             />
             {errors.fullName && (
-              <span className="text-[10px] text-red-400">
-                {errors.fullName}
-              </span>
+              <span className="text-xs text-red-400">{errors.fullName}</span>
             )}
           </div>
 
-          {/* CCCD & Phone */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* SĐT & Email */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-                CCCD / CMND *
-              </label>
-              <input
-                type="text"
-                value={formData.idNumber}
-                onChange={(e) => handleChange("idNumber", e.target.value)}
-                placeholder="123456789"
-                className={`h-10 px-3 rounded-lg bg-white/[0.04] text-[12px] font-semibold text-gray-200 outline-none transition-all border w-full ${
-                  errors.idNumber
-                    ? "border-red-500/50"
-                    : "border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)]"
-                }`}
-              />
-              {errors.idNumber && (
-                <span className="text-[10px] text-red-400">
-                  {errors.idNumber}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-                Số điện thoại *
+              <label className="text-[11px] uppercase tracking-wider font-medium text-zinc-400">
+                Số điện thoại
               </label>
               <input
                 type="text"
                 value={formData.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
                 placeholder="0901..."
-                className={`h-10 px-3 rounded-lg bg-white/[0.04] text-[12px] font-semibold text-gray-200 outline-none transition-all border w-full ${
+                className={`h-9 px-3 rounded-[6px] bg-[#161224]/50 text-xs font-mono text-zinc-100 placeholder:text-zinc-600 outline-none transition-all border w-full ${
                   errors.phone
-                    ? "border-red-500/50"
-                    : "border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)]"
+                    ? "border-red-500/40 focus:border-red-500/60 focus:ring-1 focus:ring-red-500/60"
+                    : "border-white/[0.08] focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50"
                 }`}
               />
               {errors.phone && (
-                <span className="text-[10px] text-red-400">{errors.phone}</span>
+                <span className="text-xs text-red-400">{errors.phone}</span>
               )}
             </div>
-          </div>
-
-          {/* Email & Quốc tịch */}
-          <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-                Email
+              <label className="text-[11px] uppercase tracking-wider font-medium text-zinc-400">
+                Email <span className="text-red-400">*</span>
               </label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange("email", e.target.value)}
                 placeholder="email@example.com"
-                className={`h-10 px-3 rounded-lg bg-white/[0.04] text-[12px] font-semibold text-gray-200 outline-none transition-all border w-full ${
+                className={`h-9 px-3 rounded-[6px] bg-[#161224]/50 text-xs font-mono text-zinc-100 placeholder:text-zinc-600 outline-none transition-all border w-full ${
                   errors.email
-                    ? "border-red-500/50"
-                    : "border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)]"
+                    ? "border-red-500/40 focus:border-red-500/60 focus:ring-1 focus:ring-red-500/60"
+                    : "border-white/[0.08] focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50"
                 }`}
               />
               {errors.email && (
-                <span className="text-[10px] text-red-400">{errors.email}</span>
+                <span className="text-xs text-red-400">{errors.email}</span>
               )}
             </div>
+          </div>
+
+          {/* Quốc tịch & Ngày sinh */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
+              <label className="text-[11px] uppercase tracking-wider font-medium text-zinc-400">
                 Quốc tịch
               </label>
               <input
@@ -205,14 +176,43 @@ const CustomerFormModal = ({ isOpen, initialData, onClose, onSubmit }) => {
                 value={formData.nationality}
                 onChange={(e) => handleChange("nationality", e.target.value)}
                 placeholder="Việt Nam"
-                className="h-10 px-3 rounded-lg bg-white/[0.04] text-[12px] font-semibold text-gray-200 outline-none border border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)] transition-all w-full"
+                className="h-9 px-3 rounded-[6px] bg-[#161224]/50 text-xs text-zinc-100 placeholder:text-zinc-600 outline-none border border-white/[0.08] focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all w-full"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              {/* <label className="text-[11px] uppercase tracking-wider font-medium text-zinc-400">
+                Ngày sinh
+              </label>
+              <input
+                type="date"
+                value={formData.dateOfBirth}
+                onChange={(e) => handleChange("dateOfBirth", e.target.value)}
+                className={`h-9 px-3 rounded-[6px] bg-[#161224]/50 text-xs font-mono text-zinc-100 outline-none transition-all border w-full ${
+                  errors.dateOfBirth
+                    ? "border-red-500/40 focus:border-red-500/60 focus:ring-1 focus:ring-red-500/60"
+                    : "border-white/[0.08] focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50"
+                }`}
+              />
+              {errors.dateOfBirth && (
+                <span className="text-xs text-red-400">
+                  {errors.dateOfBirth}
+                </span>
+              )} */}
+
+              <DateInput
+                label="Ngày sinh"
+                value={formData.dateOfBirth}
+                error={errors.dateOfBirth}
+                onChange={(date) => handleChange("dateOfBirth", date)}
+                required={false}
+                placeholder="Chọn ngày sinh"
               />
             </div>
           </div>
 
           {/* Địa chỉ */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
+            <label className="text-[11px] uppercase tracking-wider font-medium text-zinc-400">
               Địa chỉ
             </label>
             <input
@@ -220,45 +220,23 @@ const CustomerFormModal = ({ isOpen, initialData, onClose, onSubmit }) => {
               value={formData.address}
               onChange={(e) => handleChange("address", e.target.value)}
               placeholder="123 Đường ABC, TP. HCM"
-              className="h-10 px-3 rounded-lg bg-white/[0.04] text-[12px] font-semibold text-gray-200 outline-none border border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)] transition-all w-full"
+              className="h-9 px-3 rounded-[6px] bg-[#161224]/50 text-xs text-zinc-100 placeholder:text-zinc-600 outline-none border border-white/[0.08] focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 transition-all w-full"
             />
-          </div>
-
-          {/* Ngày sinh */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-              Ngày sinh
-            </label>
-            <input
-              type="date"
-              value={formData.dateOfBirth}
-              onChange={(e) => handleChange("dateOfBirth", e.target.value)}
-              className={`h-10 px-3 rounded-lg bg-white/[0.04] text-[12px] font-semibold text-gray-200 outline-none transition-all border w-full ${
-                errors.dateOfBirth
-                  ? "border-red-500/50"
-                  : "border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)]"
-              }`}
-            />
-            {errors.dateOfBirth && (
-              <span className="text-[10px] text-red-400">
-                {errors.dateOfBirth}
-              </span>
-            )}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-6 pt-4 flex gap-3 shrink-0 border-t border-white/[0.05]">
+        <div className="p-5 pt-4 flex gap-3 shrink-0 border-t border-white/[0.05]">
           <button
             onClick={onClose}
-            className="flex-1 h-11 rounded-xl text-[11px] font-black uppercase tracking-wider text-gray-500 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer"
+            className="flex-1 h-9 rounded-[6px] text-xs font-medium text-zinc-400 border border-white/[0.08] bg-[#1a1528]/40 hover:bg-[#201a33]/60 hover:text-zinc-200 transition-colors cursor-pointer active:scale-[0.98]"
           >
             Hủy
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="flex-[2] h-11 rounded-xl text-[11px] font-black uppercase tracking-wider text-white flex items-center justify-center gap-2 bg-gradient-to-br from-[#b026ff] to-[#7c3aed] shadow-[0_4px_16px_rgba(176,38,255,0.35)] hover:shadow-[0_6px_20px_rgba(176,38,255,0.5)] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-[2] h-9 rounded-[6px] text-xs font-medium text-white flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-500 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
           >
             <Save size={14} /> {initialData ? "Cập nhật" : "Thêm mới"}
           </button>

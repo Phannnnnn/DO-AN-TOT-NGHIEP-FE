@@ -2,8 +2,17 @@ import { QRCodeSVG } from "qrcode.react";
 import { Copy, X, CheckCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { bookingService } from "@/services";
+import { useNoScroll } from "@/hooks/useNoScroll";
 
-const PaymentQRModal = ({ paymentUrl, bookingId, onClose, onPaid }) => {
+const PaymentQRModal = ({
+  paymentUrl,
+  paymentType,
+  paymentTypes,
+  bookingId,
+  onClose,
+  onPaid,
+}) => {
+  useNoScroll(true);
   const [copied, setCopied] = useState(false);
   const intervalRef = useRef(null);
 
@@ -11,12 +20,26 @@ const PaymentQRModal = ({ paymentUrl, bookingId, onClose, onPaid }) => {
     intervalRef.current = setInterval(async () => {
       try {
         const res = await bookingService.bookingById(bookingId);
-        if (res.data?.paymentStatus === "paid") {
+        let paymentStatus = "";
+        switch (paymentType) {
+          case paymentTypes.ROOM.value:
+            paymentStatus = res.data.paymentStatus;
+            break;
+
+          case paymentTypes.SERVICE.value:
+            paymentStatus = res.data.servicePaymentStatus;
+            break;
+
+          default:
+            break;
+        }
+
+        if (paymentStatus === "paid") {
           clearInterval(intervalRef.current);
           onPaid(res.data);
           onClose();
         }
-      } catch {}
+      } catch { }
     }, 3000);
 
     return () => clearInterval(intervalRef.current);
@@ -36,10 +59,10 @@ const PaymentQRModal = ({ paymentUrl, bookingId, onClose, onPaid }) => {
         <div className="p-6 flex flex-col items-center gap-4">
           <div className="flex items-center justify-between w-full">
             <div>
-              <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.2em]">
+              <p className="text-xs font-bold text-gray-600">
                 Thanh toán VNPAY
               </p>
-              <p className="text-[15px] font-black text-white">
+              <p className="text-base font-bold text-white">
                 Booking #{bookingId}
               </p>
             </div>
@@ -56,14 +79,14 @@ const PaymentQRModal = ({ paymentUrl, bookingId, onClose, onPaid }) => {
             <QRCodeSVG value={paymentUrl} size={200} />
           </div>
 
-          <p className="text-[11px] text-gray-500 text-center">
+          <p className="text-xs text-gray-500 text-center">
             Đưa mã QR cho khách quét bằng app ngân hàng hoặc ví điện tử
           </p>
 
           {/* Copy link */}
           <button
             onClick={handleCopy}
-            className="w-full h-10 rounded-xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 border border-[rgba(176,38,255,0.3)] bg-[rgba(176,38,255,0.08)] text-[#dda6ff] hover:bg-[rgba(176,38,255,0.15)] transition-colors cursor-pointer"
+            className="w-full h-10 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border border-[rgba(176,38,255,0.3)] bg-[rgba(176,38,255,0.08)] text-[#dda6ff] hover:bg-[rgba(176,38,255,0.15)] transition-colors cursor-pointer"
           >
             {copied ? (
               <>
@@ -78,7 +101,7 @@ const PaymentQRModal = ({ paymentUrl, bookingId, onClose, onPaid }) => {
 
           <button
             onClick={onClose}
-            className="w-full h-10 rounded-xl text-[11px] font-black uppercase tracking-wider text-gray-500 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer"
+            className="w-full h-10 rounded-xl text-xs font-bold text-gray-500 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer"
           >
             Đóng
           </button>

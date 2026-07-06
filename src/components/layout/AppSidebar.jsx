@@ -1,16 +1,7 @@
+import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import {
-  Users,
-  LogOut,
-  LayoutDashboard,
-  ConciergeBell,
-  Bed,
-  BarChart3,
-  Hotel,
-  Sparkles,
-  CalendarCheck2,
-  Contact2,
-} from "lucide-react";
+import { LogOut } from "lucide-react";
+import { MENU_GROUPS } from "@/constants/navigation";
 import {
   Sidebar,
   SidebarHeader,
@@ -25,84 +16,46 @@ import {
 } from "../ui/sidebar";
 import { useAuth } from "@/context/ContextProvider";
 
-const MENU_GROUPS = [
-  {
-    label: "Tổng quan",
-    items: [
-      { id: 1, label: "Tổng quan", icon: LayoutDashboard, path: "/" },
-      { id: 2, label: "Báo cáo", icon: BarChart3, path: "/reports" },
-    ],
-  },
-  {
-    label: "Phòng",
-    items: [
-      { id: 3, label: "Quản lý phòng", icon: Bed, path: "/rooms" },
-      { id: 4, label: "Loại phòng", icon: Hotel, path: "/room-type" },
-      {
-        id: 5,
-        label: "Tiện ích/giường",
-        icon: ConciergeBell,
-        path: "/room-config",
-      },
-      // {
-      //   id: 6,
-      //   label: "Buồng phòng",
-      //   icon: WashingMachine,
-      //   path: "/housekeeping",
-      // },
-    ],
-  },
-  {
-    label: "Vận hành",
-    items: [
-      { id: 7, label: "Đặt phòng", icon: CalendarCheck2, path: "/bookings" },
-      { id: 8, label: "Dịch vụ", icon: Sparkles, path: "/services" },
-      // { id: 9, label: "Hóa đơn", icon: FileText, path: "/invoices" },
-    ],
-  },
-  {
-    label: "Nhân sự & KH",
-    items: [
-      { id: 10, label: "Người dùng", icon: Users, path: "/customers" },
-      { id: 11, label: "Nhân sự", icon: Contact2, path: "/staff" },
-    ],
-  },
-];
-
 const AppSidebar = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const location = useLocation();
-  const { open } = useSidebar();
+  const { open, setOpenMobile, isMobile } = useSidebar();
+
+  useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [location.pathname, isMobile, setOpenMobile]);
 
   const isActive = (path) =>
     path === "/"
       ? location.pathname === "/"
       : location.pathname.startsWith(path);
 
+  const filteredMenuGroups = MENU_GROUPS.map((group) => {
+    const filteredItems = group.items.filter(
+      (item) =>
+        !item.allowedRoles || (user && item.allowedRoles.includes(user.role)),
+    );
+    return { ...group, items: filteredItems };
+  }).filter((group) => group.items.length > 0);
+
   return (
     <Sidebar
       collapsible="icon"
-      className="bg-[#0f0a19] border-r border-[#b026ff]/30"
+      className="bg-[#05020c] border-r border-[#b026ff]/20"
     >
       {/* ── Header ── */}
-      <SidebarHeader
-        className={`${open ? "items-start" : "items-center"} bg-[#0f0a19] h-14 flex px-3`}
-      >
-        <SidebarTrigger className="text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer" />
+      <SidebarHeader className={`items-start bg-[#05020c]`}>
+        <SidebarTrigger className="!bg-transparent cursor-pointer" />
       </SidebarHeader>
 
       {/* ── Content ── */}
-      <SidebarContent className="bg-[#0f0a19] py-2 overflow-x-hidden">
-        {MENU_GROUPS.map((group) => (
+      <SidebarContent className="bg-[#05020c] py-2 overflow-x-hidden">
+        {filteredMenuGroups.map((group) => (
           <SidebarGroup key={group.label} className="px-0 mb-1">
             {/* Group label: visible expanded, hidden collapsed */}
-            <p
-              className="
-              text-[9px] font-black text-gray-600 uppercase tracking-[0.18em]
-              px-4 pt-2 pb-1
-              group-data-[state=collapsed]:hidden
-            "
-            >
+            <p className="text-xs font-bold text-gray-600 px-4 pt-2 pb-1 group-data-[state=collapsed]:hidden">
               {group.label}
             </p>
 
@@ -112,14 +65,21 @@ const AppSidebar = () => {
                 const active = isActive(item.path);
 
                 return (
-                  <SidebarMenuItem key={item.id} className="px-0 list-none">
+                  <SidebarMenuItem key={item.path} className="px-2 list-none">
                     <SidebarMenuButton
                       asChild
                       tooltip={item.label}
                       className={`${active ? "bg-[#b026ff]/30 border border-[#b026ff]/60 shadow-[0_0_20px_rgba(176,38,255,0.2)] text-[var(--white)] hover:bg-[#b026ff]/30 active:bg-[#b026ff]/30 hover:text-[var(--white)] active:text-[var(--white)]" : "border border-transparent text-[var(--white)]/60 active:bg-[#b026ff]/30 active:text-[var(--white)] hover:bg-[#b026ff]/10 hover:text-[var(--white)] transition-all duration-300"} 
-                        py-5 group-data-[state=collapsed]:hover:text-[var(--white)] group-data-[state=collapsed]:active:bg-[#b026ff]/30 group-data-[state=collapsed]:mx-auto`}
+ py-5 group-data-[state=collapsed]:hover:text-[var(--white)] group-data-[state=collapsed]:active:bg-[#b026ff]/30 group-data-[state=collapsed]:mx-auto`}
                     >
-                      <Link to={item.path}>
+                      <Link
+                        to={item.path}
+                        onClick={() => {
+                          if (isMobile) {
+                            setOpenMobile(false);
+                          }
+                        }}
+                      >
                         <Icon
                           className="w-5 h-5"
                           absoluteStrokeWidth
@@ -139,18 +99,16 @@ const AppSidebar = () => {
       </SidebarContent>
 
       {/* ── Footer ── */}
-      <SidebarFooter className="bg-[#0f0a19] border-t border-[#b026ff]/30 py-2">
+      <SidebarFooter className="bg-[#05020c] border-t border-[#b026ff]/20 py-2">
         <SidebarMenu>
           <SidebarMenuItem className="px-0 list-none">
             <SidebarMenuButton
               tooltip={"Đăng xuất"}
               onClick={logout}
-              className="
-                relative flex items-center h-10 rounded-xl transition-all duration-150 gap-3 border border-transparent text-gray-400 hover:text-[var(--red)] active:text-[var(--white)] hover:bg-[var(--red)]/10 active:bg-[var(--red)]/60 hover:border-red-500/20 cursor-pointer
-              "
+              className="relative flex items-center h-10 rounded-xl transition-all duration-150 gap-3 border border-transparent text-gray-400 hover:text-[var(--red)] active:text-[var(--white)] hover:bg-[var(--red)]/10 active:bg-[var(--red)]/60 hover:border-red-500/20 cursor-pointer"
             >
               <LogOut size={18} strokeWidth={1.8} className="shrink-0" />
-              <span className="text-[12px] font-medium group-data-[state=collapsed]:hidden">
+              <span className="text-xs font-medium group-data-[state=collapsed]:hidden">
                 Đăng xuất
               </span>
             </SidebarMenuButton>

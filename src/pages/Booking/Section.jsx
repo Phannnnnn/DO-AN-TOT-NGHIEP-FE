@@ -12,9 +12,7 @@ const Section = ({ title, icon, isOpen, onToggle, children }) => (
     >
       <div className="flex items-center gap-2 text-gray-400">
         {icon}
-        <span className="text-[10px] font-black uppercase tracking-[0.12em]">
-          {title}
-        </span>
+        <span className="text-xs font-bold">{title}</span>
       </div>
       <ChevronDown
         size={14}

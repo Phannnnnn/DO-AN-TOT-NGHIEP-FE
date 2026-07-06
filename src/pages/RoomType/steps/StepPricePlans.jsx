@@ -1,3 +1,5 @@
+import DateRangePicker from "@/components/common/DateRangePicker";
+import InputFormValidator from "@/components/common/InputFormValidator";
 import { Plus, Trash2 } from "lucide-react";
 
 const PLAN_TYPE_OPTIONS = [
@@ -7,9 +9,9 @@ const PLAN_TYPE_OPTIONS = [
 ];
 
 const PLAN_TYPE_COLOR = {
-  WEEKDAY: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400",
-  WEEKEND: "bg-blue-500/10 border-blue-500/30 text-blue-400",
-  HOLIDAY: "bg-amber-500/10 border-amber-500/30 text-amber-400",
+  WEEKDAY: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
+  WEEKEND: "bg-blue-500/10 border-blue-500/20 text-blue-400",
+  HOLIDAY: "bg-amber-500/10 border-amber-500/20 text-amber-400",
 };
 
 // Format số nguyên sang chuỗi có dấu chấm VND
@@ -36,9 +38,9 @@ const StepPricePlans = ({
   };
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 font-mono">
       {plans.length === 0 && (
-        <p className="text-[11px] text-gray-700 text-center py-4">
+        <p className="text-xs text-zinc-500 text-center py-4 font-normal">
           Chưa có bảng giá nào. Nhấn "+ Thêm bảng giá" để thêm.
         </p>
       )}
@@ -46,49 +48,34 @@ const StepPricePlans = ({
       {plans.map((plan, i) => (
         <div
           key={i}
-          className="p-3.5 rounded-xl border border-white/[0.06] bg-white/[0.025] flex flex-col gap-3"
+          className="p-3.5 rounded-[6px] border border-white/[0.06] bg-white/[0.02] flex flex-col gap-3"
         >
           {/* Header */}
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black text-gray-600 uppercase tracking-wider">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
               Bảng giá #{i + 1}
             </span>
             <button
               onClick={() => onRemove(i)}
-              className="p-1.5 rounded-lg border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+              className="p-1.5 rounded-[4px] border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
             >
               <Trash2 size={12} />
             </button>
           </div>
 
           {/* Tên + Loại */}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-                Tên <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={plan.pricePlanName}
-                onChange={(e) => onUpdate(i, "pricePlanName", e.target.value)}
-                placeholder="VD: Weekday"
-                maxLength={100}
-                className={`h-10 px-3 rounded-lg bg-white/[0.04] text-[12px] font-semibold text-gray-200 outline-none transition-all border ${
-                  errors[`plan_name_${i}`]
-                    ? "border-red-500/50"
-                    : "border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)]"
-                }`}
-              />
-              {errors[`plan_name_${i}`] && (
-                <span className="text-[10px] text-red-400">
-                  {errors[`plan_name_${i}`]}
-                </span>
-              )}
-            </div>
+          <div className="grid grid-cols-2 gap-2 font-sans">
+            <InputFormValidator
+              label={"Tên kế hoạch"}
+              value={plan.pricePlanName}
+              onChange={(e) => onUpdate(i, "pricePlanName", e.target.value)}
+              placeholder="VD: Quốc khánh"
+              error={errors[`plan_name_${i}`]}
+            />
 
             {/* Loại — pill select */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
                 Loại
               </label>
               <div className="flex flex-col gap-1">
@@ -98,10 +85,10 @@ const StepPricePlans = ({
                     <button
                       key={opt.value}
                       onClick={() => !locked && onUpdate(i, "type", opt.value)}
-                      className={`h-8 px-3 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border ${
+                      className={`h-8 px-3 rounded-[6px] text-xs font-medium transition-all border ${
                         plan.type === opt.value
                           ? PLAN_TYPE_COLOR[opt.value]
-                          : "bg-white/[0.03] border-white/[0.07] text-gray-600"
+                          : "bg-white/[0.02] border-white/[0.06] text-zinc-500"
                       } ${locked ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-white/[0.15]"}`}
                     >
                       {opt.label}
@@ -109,7 +96,7 @@ const StepPricePlans = ({
                   );
                 })}
                 {isEdit && plan.pricePlanId && (
-                  <p className="text-[9px] text-gray-700 mt-0.5">
+                  <p className="text-[10px] text-zinc-500 mt-0.5 font-mono">
                     Không thể đổi loại khi cập nhật
                   </p>
                 )}
@@ -117,81 +104,34 @@ const StepPricePlans = ({
             </div>
           </div>
 
-          {/* Giá – luôn hiển thị format có dấu chấm */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-              Giá (VNĐ) <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={formatPrice(plan.basePrice)}
-              onChange={(e) => handlePriceChange(i, e)}
-              placeholder="VD: 1.000.000"
-              className={`h-10 px-3 rounded-lg bg-white/[0.04] text-[12px] font-semibold text-gray-200 outline-none transition-all border ${
-                errors[`plan_price_${i}`]
-                  ? "border-red-500/50"
-                  : "border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)]"
-              }`}
-            />
-            {errors[`plan_price_${i}`] && (
-              <span className="text-[10px] text-red-400">
-                {errors[`plan_price_${i}`]}
-              </span>
-            )}
-          </div>
+          <InputFormValidator
+            label={"Giá"}
+            inputMode="numeric"
+            value={formatPrice(plan.basePrice)}
+            onChange={(e) => handlePriceChange(i, e)}
+            placeholder="VD: 1.000.000"
+            error={errors[`plan_price_${i}`]}
+          />
 
           {/* Date range — chỉ HOLIDAY */}
           {plan.type === "HOLIDAY" && (
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-                  Từ ngày <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={plan.dateFrom}
-                  onChange={(e) => onUpdate(i, "dateFrom", e.target.value)}
-                  className={`h-10 px-3 rounded-lg bg-white/[0.04] text-[12px] font-semibold text-gray-200 outline-none transition-all border ${
-                    errors[`plan_from_${i}`]
-                      ? "border-red-500/50"
-                      : "border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)]"
-                  }`}
-                />
-                {errors[`plan_from_${i}`] && (
-                  <span className="text-[10px] text-red-400">
-                    {errors[`plan_from_${i}`]}
-                  </span>
-                )}
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-                  Đến ngày <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  value={plan.dateTo}
-                  onChange={(e) => onUpdate(i, "dateTo", e.target.value)}
-                  className={`h-10 px-3 rounded-lg bg-white/[0.04] text-[12px] font-semibold text-gray-200 outline-none transition-all border ${
-                    errors[`plan_to_${i}`]
-                      ? "border-red-500/50"
-                      : "border-[rgba(176,38,255,0.15)] focus:border-[rgba(176,38,255,0.5)]"
-                  }`}
-                />
-                {errors[`plan_to_${i}`] && (
-                  <span className="text-[10px] text-red-400">
-                    {errors[`plan_to_${i}`]}
-                  </span>
-                )}
-              </div>
-            </div>
+            <DateRangePicker
+              checkInDate={plan.dateFrom}
+              checkOutDate={plan.dateTo}
+              onChangeCheckIn={(date) => onUpdate(i, "dateFrom", date)}
+              onChangeCheckOut={(date) => onUpdate(i, "dateTo", date)}
+              errorCheckIn={errors[`plan_from_${i}`]}
+              errorCheckOut={errors[`plan_to_${i}`]}
+              labelFrom="Ngày bắt đầu"
+              labelTo="Ngày kết thúc"
+            />
           )}
         </div>
       ))}
 
       <button
         onClick={onAdd}
-        className="flex items-center justify-center gap-2 h-10 rounded-xl border border-dashed border-[rgba(176,38,255,0.3)] text-[11px] font-black text-[#b026ff] hover:bg-[rgba(176,38,255,0.06)] transition-colors cursor-pointer"
+        className="flex items-center justify-center gap-2 h-9 rounded-[6px] border border-dashed border-white/[0.08] text-xs font-medium text-violet-400 hover:bg-violet-500/5 hover:border-violet-500/20 transition-all active:scale-[0.98] cursor-pointer font-sans"
       >
         <Plus size={13} /> Thêm bảng giá
       </button>

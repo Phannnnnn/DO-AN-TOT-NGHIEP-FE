@@ -1,131 +1,228 @@
-import { useState, useRef } from "react";
-import { createPortal } from "react-dom";
-import { ChevronDown } from "lucide-react";
+import { formatVND } from "@/types/utils/fomatters/vndFomatter";
+import { Bed, Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
+import ServiceSelect from "./ServiceSelect";
+import RemoveButton from "@/components/common/RemoveButton";
+import Stepper from "@/components/common/Stepper";
+import RoomSelectDropdown from "./RoomSelectDropdown";
+import Section from "./Section";
 
-const DROPDOWN_HEIGHT = 300;
-
-const RoomSelect = ({ rooms, value, onChange, disabledIds = [], error }) => {
-  const [open, setOpen] = useState(false);
-  const [rect, setRect] = useState(null);
-  const btnRef = useRef(null);
-
-  const handleToggle = () => {
-    if (!open && btnRef.current) {
-      setRect(btnRef.current.getBoundingClientRect());
-    }
-    setOpen((v) => !v);
-  };
-
-  const spaceBelow = rect ? window.innerHeight - rect.bottom : 999;
-
-  const showAbove = rect ? spaceBelow < DROPDOWN_HEIGHT + 10 : false;
-
-  const dropdownTop = rect
-    ? showAbove
-      ? rect.top - DROPDOWN_HEIGHT + 175
-      : rect.bottom + 6
-    : 0;
-
+const RoomSelect = ({
+  searched,
+  availableRooms,
+  onOpen,
+  services,
+  onToggle,
+  roomItems,
+  holdingRooms,
+  onAddRoom,
+  onRemoveRoom,
+  errors,
+  setErrors,
+  onUpdateRoom,
+  selectedRoomIds,
+  nights,
+  onAddService,
+  onUpdateService,
+  onRemoveService,
+  isManualMode,
+  setHoldingRooms,
+  holdingSessionId,
+  setSelectedComboIdx,
+  holdRooms,
+}) => {
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-[9px] font-black text-gray-600 uppercase tracking-[0.12em]">
-        Chọn phòng <span className="text-red-500">*</span>
-      </label>
+    <>
+      {searched && availableRooms.length > 0 && (
+        <Section
+          title="Phòng"
+          icon={<Bed size={13} />}
+          isOpen={onOpen}
+          onToggle={onToggle}
+        >
+          <div className="flex flex-col gap-3">
+            {roomItems.map((item, i) => (
+              <div
+                key={i}
+                className="p-3.5 rounded-xl border border-white/[0.06] bg-white/[0.02] flex flex-col gap-3"
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-bold text-gray-600">
+                    Phòng {i + 1}
+                  </p>
+                  {roomItems.length > 1 && (
+                    <button
+                      onClick={() => onRemoveRoom(i)}
+                      className="p-1 rounded-lg border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+                    >
+                      <Trash2 size={11} />
+                    </button>
+                  )}
+                </div>
 
-      <button
-        ref={btnRef}
-        type="button"
-        onClick={handleToggle}
-        className={`w-full h-10 px-3.5 rounded-lg text-[12px] font-bold flex items-center justify-between gap-2 transition-all border ${
-          error
-            ? "border-red-500/50"
-            : open
-              ? "border-[rgba(176,38,255,0.5)] bg-[rgba(176,38,255,0.07)]"
-              : "border-[rgba(176,38,255,0.15)] bg-white/[0.04] hover:border-[rgba(176,38,255,0.3)]"
-        }`}
-      >
-        {value ? (
-          <span className="flex items-center gap-2 truncate">
-            <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-[#b026ff]" />
-            <span className="text-gray-200 truncate">
-              Phòng {value.roomNumber}
-            </span>
-            <span className="text-gray-600 text-[11px] truncate">
-              {value.roomType?.typeName} · Tầng {value.floor}
-            </span>
-          </span>
-        ) : (
-          <span className="text-gray-600">Chọn phòng...</span>
-        )}
-        <ChevronDown
-          size={13}
-          className={`text-gray-600 shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-        />
-      </button>
+                <RoomSelectDropdown
+                  rooms={availableRooms}
+                  value={item.room}
+                  onChange={(room) => {
+                    onUpdateRoom(i, "room", room);
+                    setErrors((p) => ({ ...p, [`room_${i}`]: undefined }));
+                  }}
+                  disabledIds={selectedRoomIds.filter(
+                    (id) => id !== item.room?.roomId,
+                  )}
+                  error={errors[`room_${i}`]}
+                />
 
-      {error && <span className="text-[10px] text-red-400">{error}</span>}
+                {item.room && (
+                  <div className="flex flex-col gap-2">
+                    {/* Ảnh cover */}
+                    {(() => {
+                      const cover =
+                        item.room.roomType?.roomImages?.find(
+                          (i) => i.isCover,
+                        ) ?? item.room.roomType?.roomImages?.[0];
+                      return cover ? (
+                        <img
+                          src={cover.url}
+                          alt={cover.altText ?? "Phòng"}
+                          className="w-full h-28 object-cover rounded-lg"
+                        />
+                      ) : null;
+                    })()}
 
-      {open &&
-        rect &&
-        createPortal(
-          <>
-            <div
-              className="fixed inset-0 z-[298]"
-              onMouseDown={() => setOpen(false)}
-            />
-            <div
-              className="fixed z-[299] rounded-lg border border-[rgba(176,38,255,0.2)] shadow-2xl overflow-y-auto"
-              style={{
-                top: dropdownTop,
-                left: rect.left,
-                width: rect.width,
-                maxHeight: DROPDOWN_HEIGHT,
-                background: "#160f24",
-              }}
-              onMouseDown={(e) => e.stopPropagation()}
-            >
-              {rooms.map((r) => {
-                const isSelected = value?.roomId === r.roomId;
-                const isDisabled = disabledIds.includes(r.roomId);
-                return (
-                  <button
-                    key={r.roomId}
-                    type="button"
-                    disabled={isDisabled}
-                    onClick={() => {
-                      onChange(r);
-                      setOpen(false);
-                    }}
-                    className={`w-full px-3.5 py-2.5 flex items-center justify-between gap-2 transition-colors text-left ${
-                      isDisabled
-                        ? "opacity-30 cursor-not-allowed"
-                        : isSelected
-                          ? "bg-[rgba(176,38,255,0.12)] cursor-pointer"
-                          : "hover:bg-white/[0.05] cursor-pointer"
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      {isSelected && (
-                        <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-[#b026ff]" />
+                    {/* Loại giường */}
+                    {item.room.roomType?.beds?.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {item.room.roomType.beds.map((b, idx) => (
+                          <span
+                            key={idx}
+                            className="flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-white/[0.04] border border-white/[0.06] text-gray-400"
+                          >
+                            <Bed size={9} /> {b.quantity} {b.roomBedType}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Giá */}
+                    {nights > 0 && (
+                      <p className="text-xs text-gray-600">
+                        {nights} đêm · Tổng:{" "}
+                        {formatVND(
+                          parseFloat(item.room.roomType?.activePrice ?? 0) *
+                          nights,
+                        )}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-2 pt-2 border-t border-white/[0.04]">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-bold text-gray-600 flex items-center gap-1">
+                      <Sparkles size={10} /> Dịch vụ
+                    </p>
+                    <button
+                      onClick={() => onAddService(i)}
+                      className="text-xs font-bold text-[#b026ff] hover:text-[#dda6ff] cursor-pointer flex items-center gap-1 transition-colors"
+                    >
+                      <Plus size={10} /> Thêm
+                    </button>
+                  </div>
+
+                  {item.services.map((svc, si) => (
+                    <div key={si} className="flex flex-col gap-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <ServiceSelect
+                          services={services}
+                          value={svc.serviceId}
+                          onChange={(serviceId) => {
+                            onUpdateService(i, si, "serviceId", serviceId);
+                            setErrors((p) => ({
+                              ...p,
+                              [`svc_${i}_${si}`]: undefined,
+                            }));
+                          }}
+                          error={errors[`svc_${i}_${si}`]}
+                        />
+
+                        <div className="flex items-center gap-4">
+                          <Stepper
+                            min={1}
+                            value={svc.quantity}
+                            onChange={(newVal) =>
+                              onUpdateService(i, si, "quantity", newVal)
+                            }
+                          />
+                          <div>
+                            <RemoveButton
+                              onRemove={() => onRemoveService(i, si)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      {errors[`svc_${i}_${si}`] && (
+                        <span className="text-xs text-red-400">
+                          {errors[`svc_${i}_${si}`]}
+                        </span>
                       )}
-                      <span
-                        className={`text-[12px] font-bold ${isSelected ? "text-[#dda6ff]" : "text-gray-300"}`}
-                      >
-                        Phòng {r.roomNumber}
-                      </span>
-                    </span>
-                    <span className="text-[10px] text-gray-600 shrink-0">
-                      {r.roomType?.typeName} · Tầng {r.floor}
-                      {isDisabled && " · Đã chọn"}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </>,
-          document.body,
-        )}
-    </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            <button
+              onClick={onAddRoom}
+              className="flex items-center justify-center gap-2 h-10 rounded-xl border border-dashed border-[rgba(176,38,255,0.3)] text-xs font-bold text-[#b026ff] hover:bg-[rgba(176,38,255,0.06)] transition-colors cursor-pointer"
+            >
+              <Plus size={13} /> Thêm phòng
+            </button>
+
+            {/* Nút xác nhận giữ phòng - hiển thị khi đang ở manual mode */}
+            {isManualMode &&
+              (holdingSessionId ? (
+                <div className="flex items-center justify-center gap-2 h-10 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-xs font-bold text-emerald-400">
+                  Đã giữ phòng ✓
+                </div>
+              ) : (
+                <button
+                  disabled={holdingRooms || roomItems.every((i) => !i.room)}
+                  onClick={async () => {
+                    const roomIds = roomItems
+                      .map((i) => i.room?.roomId)
+                      .filter(Boolean);
+                    if (!roomIds.length) return;
+                    setHoldingRooms(true);
+                    setErrors((p) => ({ ...p, booking: undefined }));
+                    try {
+                      await holdRooms(roomIds);
+                      setSelectedComboIdx(null);
+                    } catch (err) {
+                      setErrors((p) => ({
+                        ...p,
+                        booking:
+                          err?.message ||
+                          "Không thể giữ phòng. Vui lòng thử lại.",
+                      }));
+                    } finally {
+                      setHoldingRooms(false);
+                    }
+                  }}
+                  className={`flex items-center justify-center gap-2 h-10 rounded-xl text-xs font-bold transition-all ${holdingRooms || roomItems.every((i) => !i.room)
+                      ? "bg-white/[0.04] border border-white/[0.06] text-gray-600 cursor-not-allowed"
+                      : "border border-[rgba(176,38,255,0.4)] bg-[rgba(176,38,255,0.08)] text-[#b026ff] hover:bg-[rgba(176,38,255,0.15)] cursor-pointer animate-pulse hover:animate-none"
+                    }`}
+                >
+                  {holdingRooms ? (
+                    <Loader2 size={13} className="animate-spin" />
+                  ) : null}
+                  {holdingRooms ? "Đang giữ phòng..." : "Xác nhận giữ phòng"}
+                </button>
+              ))}
+          </div>
+        </Section>
+      )}
+    </>
   );
 };
 

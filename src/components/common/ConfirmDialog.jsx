@@ -1,5 +1,6 @@
 import { Trash2 } from "lucide-react";
 import CancelButton from "./CancelButton";
+import { useNoScroll } from "@/hooks/useNoScroll";
 
 const ConfirmDialog = ({
   isOpen,
@@ -9,11 +10,12 @@ const ConfirmDialog = ({
   description = "Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục?",
   confirmLabel = "Xóa",
 }) => {
+  useNoScroll(isOpen);
   if (!isOpen) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-[rgba(5,5,15,0.82)] backdrop-blur-[8px]"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-[rgba(5,5,15,0.2)] backdrop-blur-[2px]"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -37,13 +39,13 @@ const ConfirmDialog = ({
 
           {/* Text */}
           <div className="flex flex-col items-center text-center gap-2">
-            <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.2em]">
+            <p className="text-xs font-bold text-gray-600">
               Xác nhận
             </p>
-            <h3 className="text-xl font-black text-[#f5f0ff] tracking-tight">
+            <h3 className="text-xl font-bold text-[#f5f0ff]">
               {title}
             </h3>
-            <p className="text-[12px] text-gray-500 leading-relaxed max-w-[260px]">
+            <p className="text-xs text-gray-500 leading-relaxed max-w-[260px]">
               {description}
             </p>
           </div>
@@ -52,7 +54,7 @@ const ConfirmDialog = ({
           <div className="flex gap-3 w-full">
             <button
               onClick={onClose}
-              className="flex-1 h-11 rounded-xl text-[11px] font-black uppercase tracking-wider text-gray-500 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer"
+              className="flex-1 h-11 rounded-xl text-xs font-bold text-gray-500 border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] transition-colors cursor-pointer"
             >
               Hủy
             </button>
@@ -61,7 +63,7 @@ const ConfirmDialog = ({
                 onConfirm();
                 onClose();
               }}
-              className="flex-[2] h-11 rounded-xl text-[11px] font-black uppercase tracking-wider text-white flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 shadow-[0_4px_16px_rgba(239,68,68,0.3)] hover:shadow-[0_6px_20px_rgba(239,68,68,0.45)] transition-all cursor-pointer"
+              className="flex-[2] h-11 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 shadow-[0_4px_16px_rgba(239,68,68,0.3)] hover:shadow-[0_6px_20px_rgba(239,68,68,0.45)] transition-all cursor-pointer"
             >
               <Trash2 size={13} />
               {confirmLabel}
